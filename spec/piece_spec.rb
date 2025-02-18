@@ -23,8 +23,7 @@ describe Piece do
           positions_and_expected_moves.each do |position, correct_moves|
             king = King.new(position, random_color)
 
-            result = king.generate_king_moves(king.next_moves)
-            expect(result).to match_array(correct_moves)
+            expect(king.next_moves).to match_array(correct_moves)
           end
         end
       end
@@ -49,8 +48,8 @@ describe Piece do
           positions_and_expected_moves.each do |position, correct_moves|
             queen = Queen.new(position, random_color)
 
-            result = queen.generate_horizontal_and_vertical_moves(queen.next_moves)
-            expect(result).to match_array(correct_moves)
+            expect(queen.next_moves).to include(*correct_moves)
+            expect(queen.next_moves).to eq(queen.next_moves.uniq) # verify no duplicates
           end
         end
       end
@@ -71,8 +70,8 @@ describe Piece do
           positions_and_expected_moves.each do |position, correct_moves|
             queen = Queen.new(position, random_color)
 
-            result = queen.generate_diagonal_moves(queen.next_moves)
-            expect(result).to match_array(correct_moves)
+            expect(queen.next_moves).to include(*correct_moves)
+            expect(queen.next_moves).to eq(queen.next_moves.uniq) # verify no duplicates
           end
         end
       end
@@ -95,8 +94,7 @@ describe Piece do
           positions_and_expected_moves.each do |position, correct_moves|
             knight = Knight.new(position, random_color)
 
-            result = knight.generate_knight_moves(knight.next_moves)
-            expect(result).to match_array(correct_moves)
+            expect(knight.next_moves).to match_array(correct_moves)
           end
         end
       end
@@ -114,27 +112,26 @@ describe Piece do
 
         position_middle = [1, 3]
 
-        black_correct_move_start = [[0, 3]]
+        black_correct_moves_start = [[0, 2], [0, 3]]
         black_correct_move_middle = [[1, 4]]
 
-        white_correct_move_start = [[0, 4]]
+        white_correct_moves_start = [[0, 5], [0, 4]]
         white_correct_move_middle = [[1, 2]]
 
         correct_move_end = []
 
         it 'updates next_moves with forward unit move' do
-          positions_and_expected_moves = [[:black, black_position_start, black_correct_move_start],
+          positions_and_expected_moves = [[:black, black_position_start, black_correct_moves_start],
                                           [:black, black_position_end, correct_move_end],
                                           [:black, position_middle, black_correct_move_middle],
-                                          [:white, white_position_start, white_correct_move_start],
+                                          [:white, white_position_start, white_correct_moves_start],
                                           [:white, white_position_end, correct_move_end],
                                           [:white, position_middle, white_correct_move_middle]]
 
           positions_and_expected_moves.each do |color, position, correct_moves|
             pawn = Pawn.new(position, color)
 
-            result = pawn.generate_pawn_moves(pawn.color, pawn.next_moves)
-            expect(result).to match_array(correct_moves)
+            expect(pawn.next_moves).to match_array(correct_moves)
           end
         end
       end
