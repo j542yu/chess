@@ -61,7 +61,7 @@ end
 # This module handles generating moves within board boundaries for Pawn game pieces
 module PawnMoveable
   def generate_pawn_moves(color, next_moves = [])
-    unit_move = color == 'black' ? [0, 1] : [0, -1]
+    unit_move = color == :black ? [0, 1] : [0, -1]
     next_move = if at_starting_position?(color) # double move from start
                   [position[0], position[1] + (unit_move[1] * 2)]
                 else
@@ -73,7 +73,7 @@ module PawnMoveable
   end
 
   def at_starting_position?(color)
-    position[1] == if color == 'black'
+    position[1] == if color == :black
                      1
                    else
                      6

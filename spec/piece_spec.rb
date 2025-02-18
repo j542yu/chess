@@ -3,7 +3,7 @@
 require_relative '../lib/piece'
 
 describe Piece do
-  let(:random_color) { 'white' }
+  let(:random_color) { :white }
   let(:position_edge) { [0, 5] }
   let(:position_corner) { [7, 0] }
   let(:position_middle) { [5, 4] }
@@ -123,12 +123,12 @@ describe Piece do
         correct_move_end = []
 
         it 'updates next_moves with forward unit move' do
-          positions_and_expected_moves = [['black', black_position_start, black_correct_move_start],
-                                          ['black', black_position_end, correct_move_end],
-                                          ['black', position_middle, black_correct_move_middle],
-                                          ['white', white_position_start, white_correct_move_start],
-                                          ['white', white_position_end, correct_move_end],
-                                          ['white', position_middle, white_correct_move_middle]]
+          positions_and_expected_moves = [[:black, black_position_start, black_correct_move_start],
+                                          [:black, black_position_end, correct_move_end],
+                                          [:black, position_middle, black_correct_move_middle],
+                                          [:white, white_position_start, white_correct_move_start],
+                                          [:white, white_position_end, correct_move_end],
+                                          [:white, position_middle, white_correct_move_middle]]
 
           positions_and_expected_moves.each do |color, position, correct_moves|
             pawn = Pawn.new(position, color)
