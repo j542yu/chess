@@ -13,7 +13,7 @@ class Piece
     @position = position
     @color = color # symbol (:black / :white)
     @next_moves = []
-    @past_moves = []
+    update_next_moves
   end
 
   attr_reader :position, :color, :next_moves, :type
@@ -24,6 +24,11 @@ class Piece
 
   def update_next_moves
     @next_moves.clear
+  end
+
+  def update_position(new_position)
+    @position = new_position
+    update_next_moves
   end
 end
 
