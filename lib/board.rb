@@ -12,12 +12,6 @@ class Board
   include MoveValidation
   include BoardIO
 
-  PIECE_CHARACTERS_WHITE = { rook: '♖', bishop: '♗', knight: '♘',
-                             queen: '♕', king: '♔', pawn: '♙' }.freeze
-
-  PIECE_CHARACTERS_BLACK = { rook: '♜', bishop: '♝', knight: '♞',
-                             queen: '♛', king: '♚', pawn: '♟' }.freeze
-
   def initialize(board = nil)
     # allow saved board from previous game to be loaded if desired
     @board = board || generate_default_board

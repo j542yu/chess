@@ -3,6 +3,12 @@
 # This modules handles input and output of Board instances,
 # including printing to the command line and saving to a file
 module BoardIO
+  PIECE_CHARACTERS_WHITE = { rook: '♖', bishop: '♗', knight: '♘',
+                             queen: '♕', king: '♔', pawn: '♙' }.freeze
+
+  PIECE_CHARACTERS_BLACK = { rook: '♜', bishop: '♝', knight: '♞',
+                             queen: '♛', king: '♚', pawn: '♟' }.freeze
+
   def display # rubocop:disable Metrics/MethodLength
     print "\n      a    b    c    d    e    f    g    h\n\n"
     print "    —————————————————————————————————————————\n"

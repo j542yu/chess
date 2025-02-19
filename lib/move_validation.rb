@@ -3,6 +3,8 @@
 # This module handles validating moves when moving game pieces
 # in a Board instance
 module MoveValidation
+  private
+
   def valid_move?(piece, old_position, new_position)
     return valid_pawn_move?(piece, old_position, new_position) if piece.type == :pawn
     return valid_king_move?(piece, new_position) if piece.type == :king
@@ -13,7 +15,8 @@ module MoveValidation
   end
 
   def valid_pawn_move?(piece, old_position, new_position)
-    (piece.next_moves.include?(new_position) && path_clear?(piece, old_position, new_position)) ||
+    (piece.next_moves.include?(new_position) &&
+       path_clear?(piece, old_position, new_position) && !occupied?(new_position)) ||
       (pawn_diagonal_capture?(piece, old_position, new_position) && can_capture?(piece, new_position))
   end
 
@@ -21,9 +24,9 @@ module MoveValidation
     piece.next_moves.include?(new_position) && (!occupied?(new_position) || can_capture?(piece, new_position))
   end
 
-  private
-
   def pawn_diagonal_capture?(piece, old_position, new_position)
+    return false unless occupied?(new_position)
+
     diagonal_moves = piece.color == :black ? [[1, 1], [-1, 1]] : [[1, -1], [-1, -1]]
 
     diagonal_moves.any? do |diagonal_move|
@@ -86,9 +89,9 @@ module MoveValidation
 
   def exclusive_range(start, finish)
     if start < finish
-      start.upto(finish)[1..-2]
+      start.upto(finish).to_a[1..-2]
     else
-      start.downto(finish)[1..-2]
+      start.downto(finish).to_a[1..-2]
     end
   end
 end
