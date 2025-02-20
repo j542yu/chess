@@ -7,7 +7,6 @@ module MoveValidation
 
   def valid_move?(piece, old_position, new_position)
     return valid_pawn_move?(piece, old_position, new_position) if piece.type == :pawn
-    return valid_king_move?(piece, new_position) if piece.type == :king
 
     piece.next_moves.include?(new_position) &&
       path_clear?(piece, old_position, new_position) &&
@@ -18,10 +17,6 @@ module MoveValidation
     (piece.next_moves.include?(new_position) &&
        path_clear?(piece, old_position, new_position) && !occupied?(new_position)) ||
       (pawn_diagonal_capture?(piece, old_position, new_position) && can_capture?(piece, new_position))
-  end
-
-  def valid_king_move?(piece, new_position)
-    piece.next_moves.include?(new_position) && (!occupied?(new_position) || can_capture?(piece, new_position))
   end
 
   def pawn_diagonal_capture?(piece, old_position, new_position)
