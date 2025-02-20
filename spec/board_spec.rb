@@ -61,15 +61,24 @@ describe Board do
         end
 
         context 'when position is occupied by opponent' do
+          let(:old_position) { [2, 4] }
+          let(:new_position) { [5, 1] }
+          let(:bishop_capture_opponent) { board_rearranged[old_position[0]][old_position[1]] }
+
           it 'captures opponent piece and returns true' do
-            old_position = [2, 4]
-            new_position = [5, 1]
-
-            bishop_capture_opponent = board_rearranged[old_position[0]][old_position[1]]
-
             expect(board_rearranged.move_piece(bishop_capture_opponent, new_position)).to eq(true)
             expect(board_rearranged[new_position[0]][new_position[1]]).to eq(bishop_capture_opponent)
             expect(board_rearranged[old_position[0]][old_position[1]]).to be_nil
+          end
+
+          it 'removes opponent piece from collective pieces array' do
+            captured_piece = board_rearranged[new_position[0]][new_position[1]]
+
+            pieces = board_rearranged.pieces_black
+
+            expect(pieces).to include(captured_piece)
+            board_rearranged.move_piece(bishop_capture_opponent, new_position)
+            expect(pieces).not_to include(captured_piece)
           end
         end
 
@@ -190,15 +199,23 @@ describe Board do
             board_rearranged[new_position[0]][new_position[1]].update_position(new_position)
           end
 
+          let(:old_position) { [3, 4] }
+          let(:new_position) { [4, 3] }
+          let(:pawn_capture_opponent) { board_rearranged[old_position[0]][old_position[1]] }
           it 'captures opponent piece and returns true' do
-            old_position = [3, 4]
-            new_position = [4, 3]
-
-            pawn_capture_opponent = board_rearranged[old_position[0]][old_position[1]]
-
             expect(board_rearranged.move_piece(pawn_capture_opponent, new_position)).to eq(true)
             expect(board_rearranged[new_position[0]][new_position[1]]).to eq(pawn_capture_opponent)
             expect(board_rearranged[old_position[0]][old_position[1]]).to be_nil
+          end
+
+          it 'removes opponent piece from collective pieces array' do
+            captured_piece = board_rearranged[new_position[0]][new_position[1]]
+
+            pieces = board_rearranged.pieces_black
+
+            expect(pieces).to include(captured_piece)
+            board_rearranged.move_piece(pawn_capture_opponent, new_position)
+            expect(pieces).not_to include(captured_piece)
           end
         end
 
