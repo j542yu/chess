@@ -16,7 +16,7 @@ class Piece
     update_next_moves
   end
 
-  attr_reader :position, :color, :next_moves, :type
+  attr_reader :position, :color, :next_moves
 
   def between_board_bounds?(move)
     move[0].between?(0, 7) && move[1].between?(0, 7)
@@ -39,11 +39,6 @@ end
 class King < Piece
   include KingMoveable
 
-  def initialize(position, color)
-    super
-    @type = :king
-  end
-
   def update_next_moves
     super
     generate_king_moves(@next_moves)
@@ -57,11 +52,6 @@ end
 class Queen < Piece
   include HorizontalVerticalMoveable
   include DiagonalMoveable
-
-  def initialize(position, color)
-    super
-    @type = :queen
-  end
 
   def update_next_moves
     super
@@ -77,11 +67,6 @@ end
 class Rook < Piece
   include HorizontalVerticalMoveable
 
-  def initialize(position, color)
-    super
-    @type = :rook
-  end
-
   def update_next_moves
     super
     generate_horizontal_and_vertical_moves(@next_moves)
@@ -94,11 +79,6 @@ end
 # and updating its possible next moves when it moves to a new position
 class Bishop < Piece
   include DiagonalMoveable
-
-  def initialize(position, color)
-    super
-    @type = :bishop
-  end
 
   def update_next_moves
     super
@@ -113,11 +93,6 @@ end
 class Knight < Piece
   include KnightMoveable
 
-  def initialize(position, color)
-    super
-    @type = :knight
-  end
-
   def update_next_moves
     super
     generate_knight_moves(@next_moves)
@@ -130,11 +105,6 @@ end
 # and updating its possible next moves when it moves to a new position
 class Pawn < Piece
   include PawnMoveable
-
-  def initialize(position, color)
-    super
-    @type = :pawn
-  end
 
   def update_next_moves
     super

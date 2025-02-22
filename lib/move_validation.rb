@@ -6,20 +6,20 @@ module MoveValidation
   private
 
   def valid_move?(piece, old_position, new_position)
-    return valid_pawn_move?(piece, old_position, new_position) if piece.type == :pawn
+    return valid_pawn_move?(piece, old_position, new_position) if piece.instance_of?(Pawn)
 
     piece.next_moves.include?(new_position) &&
       path_clear?(piece, old_position, new_position) &&
-      (!occupied?(new_position) || can_capture?(piece, new_position))
+      (!occupied?(new_position) || opponent?(piece, new_position))
   end
 
   def valid_pawn_move?(piece, old_position, new_position)
     (piece.next_moves.include?(new_position) &&
        path_clear?(piece, old_position, new_position) && !occupied?(new_position)) ||
-      (pawn_diagonal_capture?(piece, old_position, new_position) && can_capture?(piece, new_position))
+      (pawn_can_diagonal_move?(piece, old_position, new_position) && opponent?(piece, new_position))
   end
 
-  def pawn_diagonal_capture?(piece, old_position, new_position)
+  def pawn_can_diagonal_move?(piece, old_position, new_position)
     return false unless occupied?(new_position)
 
     diagonal_moves = piece.color == :black ? [[1, 1], [-1, 1]] : [[1, -1], [-1, -1]]
@@ -30,7 +30,7 @@ module MoveValidation
   end
 
   def path_clear?(piece, old_position, new_position)
-    return true if piece.type == :knight
+    return true if piece.instance_of?(Knight)
 
     path = path(piece, old_position, new_position)
     path.all? { |column_idx, row_idx| @board[column_idx][row_idx].nil? }
@@ -40,20 +40,20 @@ module MoveValidation
     !@board[position[0]][position[1]].nil?
   end
 
-  def can_capture?(piece, new_position)
+  def opponent?(piece, new_position)
     other_piece = @board[new_position[0]][new_position[1]]
     piece.color != other_piece.color
   end
 
   def path(piece, old_position, new_position)
     paths = {
-      queen: %i[horizontal_path vertical_path diagonal_path],
-      rook: %i[horizontal_path vertical_path],
-      bishop: %i[diagonal_path],
-      pawn: %i[vertical_path]
+      Queen: %i[horizontal_path vertical_path diagonal_path],
+      Rook: %i[horizontal_path vertical_path],
+      Bishop: %i[diagonal_path],
+      Pawn: %i[vertical_path]
     }
 
-    paths[piece.type].flat_map { |method| send(method, old_position, new_position) }
+    paths[piece.class.name.to_sym].flat_map { |method| send(method, old_position, new_position) }
   end
 
   def horizontal_path(old_position, new_position)
