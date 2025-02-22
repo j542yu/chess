@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'piece'
+require_relative 'check_validation'
 require_relative 'move_validation'
 require_relative 'board_io'
 
@@ -9,6 +10,7 @@ require_relative 'board_io'
 # It handles storing the positions of all game pieces in a 2D array,
 # and moving game pieces
 class Board
+  include CheckValidation
   include MoveValidation
   include BoardIO
 
@@ -16,11 +18,12 @@ class Board
     @pieces_black = []
     @pieces_white = []
     @kings = { black: nil, white: nil }
+
     # allow saved board from previous game to be loaded if desired
     @board = board || generate_default_board
-  end
 
-  attr_reader :pieces_black, :pieces_white, :kings
+    @move_history = []
+  end
 
   def generate_default_board
     board = Array.new(8) { Array.new(8) }
@@ -50,7 +53,22 @@ class Board
     @board[new_position[0]][new_position[1]] = piece
     piece.update_position(new_position)
 
+    @move_history << [piece, old_position, new_position]
+
     true
+  end
+
+  def checkmate?(color)
+    king = @board.kings[color]
+    return true unless can_escape_check?(king)
+
+    threatening_pieces = opponent_pieces(color).select do |opponent_piece|
+      piece_threatens_king?(opponent_piece, opponent_piece.color, king.position)
+    end
+
+    return true if threatening_pieces.size > 1
+
+    !can_intercept_threat?(king, threatening_pieces[0])
   end
 
   private

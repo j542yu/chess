@@ -12,23 +12,6 @@ class Game
     @players = [player_one, player_two]
     @current_player_id = 0
     @board = Board.new
-    @move_history = []
-  end
-
-  def in_check?(color, potential_escape_position = nil)
-    opponent_color = color == :black ? :white : :black
-    opponent_pieces = opponent_color == :black ? @board.pieces_black : @board.pieces_white
-    king_position = potential_escape_position || @board.kings[color].position
-
-    opponent_pieces.each do |piece|
-      return true if piece_threatens_king?(piece, opponent_color, king_position)
-    end
-
-    false
-  end
-
-  def checkmate?(color)
-    false unless in_check?(color)
   end
 
   private
@@ -62,20 +45,5 @@ class Game
 
   def switch_players
     @current_player_id = 1 - @current_player_id
-  end
-
-  def pawn_threatens_king?(piece, opponent_color, king_position)
-    diagonal_moves = opponent_color == :black ? [[1, 1], [-1, 1]] : [[1, -1], [-1, -1]]
-    diagonal_moves.each do |diagonal_move|
-      return true if king_position == [piece.position[0] + diagonal_move[0],
-                                       piece.position[1] + diagonal_move[1]]
-    end
-    false
-  end
-
-  def piece_threatens_king?(piece, opponent_color, king_position)
-    return pawn_threatens_king?(piece, opponent_color, king_position) if piece.type == :pawn
-
-    piece.next_moves.include?(king_position)
   end
 end

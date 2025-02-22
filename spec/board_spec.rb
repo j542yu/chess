@@ -3,27 +3,29 @@
 require_relative '../lib/board'
 
 describe Board do
-  describe '#generate_default_board' do
-    subject(:board_start) { Board.new } # used in #initialize method
+  describe '#initialize' do
+    describe '#generate_default_board' do
+      subject(:board_start) { Board.new } # used in #initialize method
 
-    it 'places major pieces in correct positions' do
-      # random selection
-      expect(board_start[0][0]).to be_a(Rook).and have_attributes(position: [0, 0], color: :black)
-      expect(board_start[4][0]).to be_a(King).and have_attributes(position: [4, 0], color: :black)
-      expect(board_start[7][7]).to be_a(Rook).and have_attributes(position: [7, 7], color: :white)
-    end
-
-    it 'places pawns in correct positions' do
-      (0..7).each do |column_idx|
-        expect(board_start[column_idx][1]).to be_a(Pawn).and have_attributes(position: [column_idx, 1], color: :black)
-        expect(board_start[column_idx][6]).to be_a(Pawn).and have_attributes(position: [column_idx, 6], color: :white)
+      it 'places major pieces in correct positions' do
+        # random selection
+        expect(board_start[0][0]).to be_a(Rook).and have_attributes(position: [0, 0], color: :black)
+        expect(board_start[4][0]).to be_a(King).and have_attributes(position: [4, 0], color: :black)
+        expect(board_start[7][7]).to be_a(Rook).and have_attributes(position: [7, 7], color: :white)
       end
-    end
 
-    it 'leaves empty squares as nil' do
-      (2..5).each do |row_idx|
+      it 'places pawns in correct positions' do
         (0..7).each do |column_idx|
-          expect(board_start[column_idx][row_idx]).to be_nil
+          expect(board_start[column_idx][1]).to be_a(Pawn).and have_attributes(position: [column_idx, 1], color: :black)
+          expect(board_start[column_idx][6]).to be_a(Pawn).and have_attributes(position: [column_idx, 6], color: :white)
+        end
+      end
+
+      it 'leaves empty squares as nil' do
+        (2..5).each do |row_idx|
+          (0..7).each do |column_idx|
+            expect(board_start[column_idx][row_idx]).to be_nil
+          end
         end
       end
     end
@@ -74,7 +76,7 @@ describe Board do
           it 'removes opponent piece from collective pieces array' do
             captured_piece = board_rearranged[new_position[0]][new_position[1]]
 
-            pieces = board_rearranged.pieces_black
+            pieces = board_rearranged.ally_pieces(captured_piece.color)
 
             expect(pieces).to include(captured_piece)
             board_rearranged.move_piece(bishop_capture_opponent, new_position)
@@ -211,7 +213,7 @@ describe Board do
           it 'removes opponent piece from collective pieces array' do
             captured_piece = board_rearranged[new_position[0]][new_position[1]]
 
-            pieces = board_rearranged.pieces_black
+            pieces = board_rearranged.ally_pieces(captured_piece.color)
 
             expect(pieces).to include(captured_piece)
             board_rearranged.move_piece(pawn_capture_opponent, new_position)
@@ -253,6 +255,80 @@ describe Board do
             expect(board_rearranged[new_position[0]][new_position[1]]).to be_nil
             expect(board_rearranged[old_position[0]][old_position[1]]).to eq(pawn_capture_fail)
           end
+        end
+      end
+    end
+  end
+
+  describe '#in_check?' do
+    let(:king_color) { :black }
+    context 'when king is not in check' do
+      it 'returns false' do
+        board_no_check = Board.new
+
+        expect(board_no_check.in_check?(king_color)).to eq(false)
+      end
+    end
+
+    let(:board_check) { Board.new }
+
+    before do # rearrange to make black king in check
+      # remove black_pawn
+      board_check[4][1] = nil
+      board_check.instance_variable_get(:@pieces_black).delete(board_check[4][1])
+
+      # move white queen
+      board_check[4][5] = board_check[3][7]
+      board_check[3][7] = nil
+      board_check[4][5].update_position([4, 5])
+    end
+
+    context 'when king is in check by one piece' do
+      it 'returns true' do
+        expect(board_check.in_check?(king_color)).to eq(true)
+      end
+    end
+
+    context 'when king is in check by multiple pieces' do
+      before do # rearrange to make black king in check
+        # remove another black pawn
+        board_check[4][1] = nil
+        board_check.instance_variable_get(:@pieces_black).delete(board_check[3][1])
+
+        # move white bishop
+        board_check[2][2] = board_check[2][7]
+        board_check[2][7] = nil
+        board_check[2][2].update_position([2, 2])
+      end
+
+      it 'returns true' do
+        expect(board_check.in_check?(king_color)).to eq(true)
+      end
+    end
+
+    context 'when king was previously in check and now attempts to escape' do
+      context 'when new position is in check' do
+        before do
+          # move black king down
+          board_check[4][1] = board_check[4][0]
+          board_check[4][0] = nil
+        end
+
+        it 'returns true' do
+          expect(board_check.in_check?(king_color)).to(eq(true))
+        end
+      end
+
+      context 'when new position is not in check' do
+        before do
+          # move black king down
+          board_check[3][2] = board_check[4][0]
+          board_check[4][0] = nil
+          board_check[3][2].update_position([3, 2])
+        end
+
+        it 'returns false' do
+          expect(board_check.in_check?(king_color)).to(eq(false))
         end
       end
     end
