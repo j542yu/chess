@@ -5,94 +5,90 @@
 # It handles storing the player's name
 # and interacting with the player via the command line
 class HumanPlayer
-  RANDOM_NAMES = ['Chris P Bacon', 'Zoltan Pepper', 'Ella Vader', 'Amy Stake', 'Barb Dwyer', 'Justin Case'].freeze
-
   def initialize(color, player_num = 0)
     @player_num = player_num # greet differently if two human players VS human against computer
     @name = ask_player_name
     @color = color
   end
 
-  def make_move(board, previously_invalid: false)
-    puts 'Your previous attempt was an illegal move. Try again.' if previously_invalid
+  attr_reader :name, :color
 
-    puts "#{name}, it's your turn!"
+  def make_move(board) # rubocop:disable Metrics/MethodLength
+    puts "\n#{@name}, it's your turn! You are playing #{@color}."
+    board.display
 
-    piece_name = ask_for_piece_name
-    piece = clarify_piece(piece_name, board)
-    move = ask_for(:move)
+    loop do
+      alphanum_original_position, indices_original_position = ask_for_position(board, :original)
 
-    move_translator(move)
+      piece = board[*indices_original_position]
 
-    [piece, move]
+      alphanum_new_position, indices_new_position = ask_for_position(board, :new)
+
+      if board.move_piece(piece, indices_new_position)
+        puts "\n#{@name} moved #{piece.class.name} from #{alphanum_original_position} to #{alphanum_new_position}"
+        return
+      end
+
+      puts "\n#{piece.class.name} cannot move to #{alphanum_new_position}. It's an illegal move. Try again please!"
+    end
   end
 
   private
 
   def ask_player_name
-    print @player_num.positive? ? "Hey, player #{@player_num}!" : 'Hey you, yes you the human.'
-    print "What's your name? Psst... just press enter if you want a random name :>\n=> "
+    print @player_num.positive? ? "\nHey, player #{@player_num}! " : 'Hey you, yes you the human. '
+    print "What's your name?\n=> "
 
     name = gets.chomp
     return name unless name.empty?
 
-    name = RANDOM_NAMES.sample
-    puts "Alright then, you'll be #{name} (sorry...)."
-    name
+    "Player #{@player_num}"
   end
 
-  def ask_for_piece_name
-    print "Enter the name of the piece to move:\n=> "
+  def ask_for_position(board, type)
+    case type
+    when :original
+      print "\nEnter the position of the piece you want to move\n=> "
+      alphanum_position = validate_move_syntax(board, type, consider_color: true)
+    when :new
+      print "\nEnter the position to which you want to move your piece\n=> "
+      alphanum_position = validate_move_syntax(board, type, consider_color: false)
+    end
 
-    input = nil
+    [alphanum_position, alphanum_to_indices(alphanum_position)]
+  end
+
+  def validate_move_syntax(board, type, consider_color: false) # rubocop:disable Metrics/MethodLength
     loop do
-      input = gets.chomp.capitalize.to_sym
-      break if piece_valid?(input)
-
-      print "Oop, that's not a piece in chess.\n" \
-            'Your input should be any of the following:' \
-            "'Rook', 'Knight', 'Bishop', 'Queen', 'King', 'Pawn'\n=> "
+      input = gets.chomp
+      if !move_syntax_valid?(input)
+        print "\nOops, that's invalid. Your input must be a letter followed by a number, like 'e4'.\n" \
+              "Try again please!\n=> "
+      elsif type == :original && empty?(board, alphanum_to_indices(input))
+        print "\nThere's no piece at #{input}. Try again please!\n=> "
+      elsif consider_color && !move_color_valid?(board, alphanum_to_indices(input))
+        print "\nHmm, you're not allowed to move the piece at #{input}... You can only move #{@color} pieces.\n" \
+              "Try again please!\n=> "
+      else
+        return input
+      end
     end
   end
 
-  def clarify_piece(piece_name, board) # rubocop:disable Metrics/AbcSize
-    pieces = board.ally_pieces(@color).select { |ally_piece| ally_piece.class.name.to_sym == piece_name }
-    return if pieces.size == 1
-
-    print "There's multiple #{piece_name}s: "
-    pieces.each do |piece|
-      alphanum_position = indices_to_alphanum(piece.position)
-      print "#{alphanum_position} "
-    end
-
-    print "Which piece would you like to move?\n=>"
-    position = ask_for(:position)
-    pieces.find { |piece| piece.position == position }
+  def empty?(board, position)
+    board[position[0]][position[1]].nil?
   end
 
-  def piece_valid?(input)
-    %i[Rook Knight Bishop Queen King Pawn].include?(input)
+  def move_syntax_valid?(position)
+    position.size == 2 && ('a'..'h').include?(position[0]) && ('1'..'8').include?(position[1])
   end
 
-  def ask_for(input)
-    print "Enter your #{input}:\n=> "
-    loop do
-      input = gets.chomp.chars
-      return input if move_valid?(input)
-
-      print "Oop, that's invalid. Your input should be a letter followed by a number, like 'e4'. Try again please!\n=> "
-    end
-  end
-
-  def move_valid?(input)
-    input.size == 2 && /[a-h]/.include?(input[0]) && (1..8).include?(input[1])
+  def move_color_valid?(board, position)
+    moving_piece_color = board[position[0]][position[1]].color
+    moving_piece_color == @color
   end
 
   def alphanum_to_indices(alphanum)
-    [ord(alphanum[0]) - ord('a'), alphanum[1].to_i - 1]
-  end
-
-  def indices_to_alphanum(indices)
-    "#{(indices[0] + ord('a')).chr}#{indices[1] + 1}"
+    [alphanum[0].ord - 'a'.ord, 8 - alphanum[1].to_i]
   end
 end
