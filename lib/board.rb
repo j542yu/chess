@@ -25,41 +25,38 @@ class Board
     @move_history = []
   end
 
-  def generate_default_board
-    board = Array.new(8) { Array.new(8) }
-
-    place_major_pieces(board, :black, 0)
-    place_pawns(board, :black, 1)
-
-    place_major_pieces(board, :white, 7)
-    place_pawns(board, :white, 6)
-
-    board
-  end
-
-  def [](column_idx)
-    @board[column_idx]
+  def [](column_idx, row_idx = nil)
+    # require 'pry-byebug'
+    # binding.pry
+    if row_idx.nil?
+      @board[column_idx] # board[column_idx][row_idx]
+    else
+      @board[column_idx][row_idx] # board[*position]
+    end
   end
 
   # returns true if piece was successfully moved, or false otherwise
-  def move_piece(piece, new_position) # rubocop:disable Metrics/AbcSize
-    old_position = piece.position
+  def move_piece(moving_piece, new_position)
+    old_position = moving_piece.position
 
-    return false unless valid_move?(piece, old_position, new_position)
+    return false unless valid_move?(moving_piece, old_position, new_position)
 
-    remove_captured_piece(new_position) unless @board[new_position[0]][new_position[1]].nil?
+    captured_piece = self[*new_position]
+    remove_captured_piece(moving_piece, captured_piece)
 
-    @board[old_position[0]][old_position[1]] = nil
-    @board[new_position[0]][new_position[1]] = piece
-    piece.update_position(new_position)
+    self[*old_position] = nil
+    self[*new_position] = moving_piece
+    moving_piece.update_position(new_position)
 
-    @move_history << [piece, old_position, new_position]
+    @move_history << [moving_piece, old_position, new_position]
 
     true
   end
 
   def checkmate?(color)
-    king = @board.kings[color]
+    return false unless in_check?(color)
+
+    king = @kings[color]
     return true unless can_escape_check?(king)
 
     threatening_pieces = opponent_pieces(color).select do |opponent_piece|
@@ -73,8 +70,24 @@ class Board
 
   private
 
+  def []=(column_idx, row_idx, value)
+    @board[column_idx][row_idx] = value
+  end
+
+  def generate_default_board
+    board = Array.new(8) { Array.new(8) }
+
+    place_major_pieces(board, :black, 0)
+    place_pawns(board, :black, 1)
+
+    place_major_pieces(board, :white, 7)
+    place_pawns(board, :white, 6)
+
+    board
+  end
+
   def place_major_pieces(board, color, row_idx)
-    pieces_all = color == :black ? @pieces_black : @pieces_white
+    pieces_all = ally_pieces(color)
 
     first_row_pieces = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook]
     first_row_pieces.each_with_index do |piece_class, column_idx|
@@ -86,7 +99,7 @@ class Board
   end
 
   def place_pawns(board, color, row_idx)
-    pieces_all = color == :black ? @pieces_black : @pieces_white
+    pieces_all = ally_pieces(color)
 
     (0..7).each do |column_idx|
       pawn_new = Pawn.new([column_idx, row_idx], color)
@@ -95,13 +108,13 @@ class Board
     end
   end
 
-  def remove_captured_piece(captured_piece_position)
-    captured_piece = @board[captured_piece_position[0]][captured_piece_position[1]]
+  def remove_captured_piece(capturing_piece, captured_piece)
+    captured_piece = @move_history[-1][0] if captured_piece.nil? && en_passant?(capturing_piece)
 
-    pieces = captured_piece.color == :black ? @pieces_black : @pieces_white
+    return if captured_piece.nil?
 
-    pieces.delete(captured_piece)
+    ally_pieces(captured_piece.color).delete(captured_piece)
 
-    @board[captured_piece_position[0]][captured_piece_position[1]] = nil
+    self[*captured_piece.position] = nil
   end
 end

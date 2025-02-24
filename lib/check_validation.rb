@@ -22,6 +22,8 @@ module CheckValidation
     color == :black ? @pieces_black : @pieces_white
   end
 
+  private
+
   def pinned_pieces(king)
     pinned_pieces = []
 
@@ -46,8 +48,6 @@ module CheckValidation
     column_difference.zero? || row_difference.zero? || column_difference == row_difference
   end
 
-  private
-
   def possible_pinning_pieces(king)
     opponent_pieces(king.color).reject do |opponent_piece|
       opponent_piece.instance_of?(Knight) || opponent_piece.instance_of(Pawn) ||
@@ -60,9 +60,7 @@ module CheckValidation
   end
 
   def can_intercept_threat?(king, threatening_piece)
-    ally_pieces = ally_pieces.reject { |ally_piece| ally_piece.instance_of?(King) }
-
-    ally_pieces.any? do |ally_piece|
+    ally_pieces(king.color).any? do |ally_piece|
       can_block_or_capture = can_block_path?(king, threatening_piece, ally_piece) ||
                              can_capture_threat?(threatening_piece, ally_piece)
 
@@ -71,7 +69,7 @@ module CheckValidation
   end
 
   def can_block_path?(king, threatening_piece, ally_piece)
-    return false if threatening_piece.instance_of?(Knight)
+    return false if threatening_piece.instance_of?(Knight) || ally_piece.instance_of?(King)
 
     path = path(threatening_piece, threatening_piece.position, king.position)
 

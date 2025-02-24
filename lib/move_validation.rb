@@ -5,47 +5,74 @@
 module MoveValidation
   private
 
-  def valid_move?(piece, old_position, new_position)
-    return valid_pawn_move?(piece, old_position, new_position) if piece.instance_of?(Pawn)
+  def valid_move?(moving_piece, old_position, new_position)
+    return valid_pawn_move?(moving_piece, old_position, new_position) if moving_piece.instance_of?(Pawn)
 
-    piece.next_moves.include?(new_position) &&
-      path_clear?(piece, old_position, new_position) &&
-      (!occupied?(new_position) || opponent?(piece, new_position))
+    moving_piece.next_moves.include?(new_position) &&
+      path_clear?(moving_piece, old_position, new_position) &&
+      (!occupied?(new_position) || opponent?(moving_piece, new_position))
   end
 
-  def valid_pawn_move?(piece, old_position, new_position)
-    (piece.next_moves.include?(new_position) &&
-       path_clear?(piece, old_position, new_position) && !occupied?(new_position)) ||
-      (pawn_can_diagonal_move?(piece, old_position, new_position) && opponent?(piece, new_position))
+  def valid_pawn_move?(moving_piece, old_position, new_position)
+    pawn_forward_move?(moving_piece, old_position, new_position) ||
+      pawn_diagonal_capture?(moving_piece, old_position, new_position) ||
+      en_passant?(moving_piece)
   end
 
-  def pawn_can_diagonal_move?(piece, old_position, new_position)
+  def pawn_forward_move?(moving_piece, old_position, new_position)
+    moving_piece.next_moves.include?(new_position) &&
+      path_clear?(moving_piece, old_position, new_position) && !occupied?(new_position)
+  end
+
+  def pawn_diagonal_capture?(moving_piece, old_position, new_position)
+    pawn_can_diagonal_move?(moving_piece, old_position, new_position) && opponent?(moving_piece, new_position)
+  end
+
+  def en_passant?(moving_piece)
+    last_move = @move_history[-1]
+    return false if last_move.nil?
+
+    column_difference = (last_move[2][0] - moving_piece.position[0]).abs
+    opponent_pawn_double_move?(moving_piece, last_move) && column_difference == 1
+  end
+
+  def opponent_pawn_double_move?(moving_piece, last_move)
+    last_moved_piece = last_move[0]
+    return false unless last_moved_piece.instance_of?(Pawn) && opponent?(moving_piece, last_moved_piece.position)
+
+    column_move = last_move[1][0] - last_move[2][0]
+    row_move = (last_move[1][1] - last_move[2][1]).abs
+
+    column_move.zero? && row_move == 2
+  end
+
+  def pawn_can_diagonal_move?(moving_piece, old_position, new_position)
     return false unless occupied?(new_position)
 
-    diagonal_moves = piece.color == :black ? [[1, 1], [-1, 1]] : [[1, -1], [-1, -1]]
+    diagonal_moves = moving_piece.color == :black ? [[1, 1], [-1, 1]] : [[1, -1], [-1, -1]]
 
     diagonal_moves.any? do |diagonal_move|
       new_position == [old_position[0] + diagonal_move[0], old_position[1] + diagonal_move[1]]
     end
   end
 
-  def path_clear?(piece, old_position, new_position)
-    return true if piece.instance_of?(Knight)
+  def path_clear?(moving_piece, old_position, new_position)
+    return true if moving_piece.instance_of?(Knight)
 
-    path = path(piece, old_position, new_position)
-    path.all? { |column_idx, row_idx| @board[column_idx][row_idx].nil? }
+    path = path(moving_piece, old_position, new_position)
+    path.all? { |position| self[*position].nil? }
   end
 
   def occupied?(position)
-    !@board[position[0]][position[1]].nil?
+    !self[*position].nil?
   end
 
-  def opponent?(piece, new_position)
-    other_piece = @board[new_position[0]][new_position[1]]
-    piece.color != other_piece.color
+  def opponent?(moving_piece, new_position)
+    other_piece = self[*new_position]
+    moving_piece.color != other_piece.color
   end
 
-  def path(piece, old_position, new_position)
+  def path(moving_piece, old_position, new_position)
     paths = {
       Queen: %i[horizontal_path vertical_path diagonal_path],
       Rook: %i[horizontal_path vertical_path],
@@ -53,7 +80,7 @@ module MoveValidation
       Pawn: %i[vertical_path]
     }
 
-    paths[piece.class.name.to_sym].flat_map { |method| send(method, old_position, new_position) }
+    paths[moving_piece.class.name.to_sym].flat_map { |method| send(method, old_position, new_position) }
   end
 
   def horizontal_path(old_position, new_position)
