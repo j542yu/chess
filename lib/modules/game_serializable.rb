@@ -24,7 +24,7 @@ module GameSerializable
 
     File.open(file_name, 'w') { |file| file.puts file_contents }
 
-    puts "\nCurrent game progress has been saved under #{SAVE_FOLDER_NAME}/##{file_name}."
+    puts "\nCurrent game progress has been saved under #{file_name}."
   end
 
   def to_h

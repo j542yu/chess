@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require_relative 'piece'
-require_relative 'check_validation'
-require_relative 'move_validation'
-require_relative 'board_io'
-require_relative 'serializable/board_serializable'
+require_relative 'modules/check_validation'
+require_relative 'modules/move_validation'
+require_relative 'modules/board_display'
+require_relative 'modules/board_serializable'
 
 # This class represents the chess game board
 #
@@ -13,7 +13,7 @@ require_relative 'serializable/board_serializable'
 class Board
   include CheckValidation
   include MoveValidation
-  include BoardIO
+  include BoardDisplay
   include BoardSerializable
 
   def initialize(pieces = [[], [], { black: nil, white: nil }], board = nil, move_history = [])

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'moveable'
+require_relative 'modules/moveable'
 
 # This class represents a game piece in chess
 #

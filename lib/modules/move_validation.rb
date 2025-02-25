@@ -32,8 +32,13 @@ module MoveValidation
     last_move = @move_history[-1]
     return false if last_move.nil?
 
+    opponent_pawn_double_move?(moving_piece, last_move) && correct_en_passant_positioning?(last_move, moving_piece)
+  end
+
+  def correct_en_passant_positioning?(last_move, moving_piece)
     column_difference = (last_move[2][0] - moving_piece.position[0]).abs
-    opponent_pawn_double_move?(moving_piece, last_move) && column_difference == 1
+    row_difference = (last_move[2][1] - moving_piece.position[1]).abs
+    column_difference == 1 && row_difference.zero?
   end
 
   def opponent_pawn_double_move?(moving_piece, last_move)

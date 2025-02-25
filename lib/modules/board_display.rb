@@ -2,7 +2,7 @@
 
 # This modules handles input and output of Board instances,
 # including printing to the command line and saving to a file
-module BoardIO
+module BoardDisplay
   PIECE_CHARACTERS_WHITE = { Rook: '♖', Bishop: '♗', Knight: '♘',
                              Queen: '♕', King: '♔', Pawn: '♙' }.freeze
 

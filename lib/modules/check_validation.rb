@@ -42,7 +42,7 @@ module CheckValidation
 
   def possible_pinning_pieces(king)
     opponent_pieces(king.color).reject do |opponent_piece|
-      opponent_piece.instance_of?(Knight) || opponent_piece.instance_of(Pawn) ||
+      %w[Knight Pawn King].include?(opponent_piece.class.name) ||
         !in_line_of_attack?(opponent_piece, king)
     end
   end
@@ -69,7 +69,7 @@ module CheckValidation
   end
 
   def can_capture_threat?(threatening_piece, ally_piece)
-    if ally_piece.instance_of(Pawn)
+    if ally_piece.instance_of?(Pawn)
       pawn_can_diagonal_move?(ally_piece, ally_piece.position, threatening_piece.position)
     else
       ally_piece.next_moves.include?(threatening_piece.position)

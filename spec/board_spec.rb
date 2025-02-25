@@ -4,28 +4,26 @@ require_relative '../lib/board'
 
 describe Board do
   describe '#initialize' do
-    describe '#generate_default_board' do
-      subject(:board_start) { Board.new } # used in #initialize method
+    subject(:board_start) { Board.new } # used in #initialize method
 
-      it 'places major pieces in correct positions' do
-        # random selection
-        expect(board_start[0][0]).to be_a(Rook).and have_attributes(position: [0, 0], color: :black)
-        expect(board_start[4][0]).to be_a(King).and have_attributes(position: [4, 0], color: :black)
-        expect(board_start[7][7]).to be_a(Rook).and have_attributes(position: [7, 7], color: :white)
+    it 'places major pieces in correct positions' do
+      # random selection
+      expect(board_start[0][0]).to be_a(Rook).and have_attributes(position: [0, 0], color: :black)
+      expect(board_start[4][0]).to be_a(King).and have_attributes(position: [4, 0], color: :black)
+      expect(board_start[7][7]).to be_a(Rook).and have_attributes(position: [7, 7], color: :white)
+    end
+
+    it 'places pawns in correct positions' do
+      (0..7).each do |column_idx|
+        expect(board_start[column_idx][1]).to be_a(Pawn).and have_attributes(position: [column_idx, 1], color: :black)
+        expect(board_start[column_idx][6]).to be_a(Pawn).and have_attributes(position: [column_idx, 6], color: :white)
       end
+    end
 
-      it 'places pawns in correct positions' do
+    it 'leaves empty squares as nil' do
+      (2..5).each do |row_idx|
         (0..7).each do |column_idx|
-          expect(board_start[column_idx][1]).to be_a(Pawn).and have_attributes(position: [column_idx, 1], color: :black)
-          expect(board_start[column_idx][6]).to be_a(Pawn).and have_attributes(position: [column_idx, 6], color: :white)
-        end
-      end
-
-      it 'leaves empty squares as nil' do
-        (2..5).each do |row_idx|
-          (0..7).each do |column_idx|
-            expect(board_start[column_idx][row_idx]).to be_nil
-          end
+          expect(board_start[column_idx][row_idx]).to be_nil
         end
       end
     end
@@ -334,7 +332,7 @@ describe Board do
     end
   end
 
-  describe BoardIO do
+  describe BoardDisplay do
     describe '#display' do
       context 'when game is at start' do
         it 'shows game pieces in default position' do
