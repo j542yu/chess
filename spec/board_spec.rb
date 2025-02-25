@@ -54,7 +54,8 @@ describe Board do
 
             rook_free = board_rearranged[old_position[0]][old_position[1]]
 
-            expect(board_rearranged.move_piece(rook_free, new_position)).to eq(true)
+            result = { move_successful: true, captured: false, en_passant: false, promote_pawn: false }
+            expect(board_rearranged.move_piece(rook_free, new_position)).to eq(result)
             expect(board_rearranged[new_position[0]][new_position[1]]).to eq(rook_free)
             expect(board_rearranged[old_position[0]][old_position[1]]).to be_nil
           end
@@ -66,7 +67,8 @@ describe Board do
           let(:bishop_capture_opponent) { board_rearranged[old_position[0]][old_position[1]] }
 
           it 'captures opponent piece and returns true' do
-            expect(board_rearranged.move_piece(bishop_capture_opponent, new_position)).to eq(true)
+            result = { move_successful: true, captured: true, en_passant: false, promote_pawn: false }
+            expect(board_rearranged.move_piece(bishop_capture_opponent, new_position)).to eq(result)
             expect(board_rearranged[new_position[0]][new_position[1]]).to eq(bishop_capture_opponent)
             expect(board_rearranged[old_position[0]][old_position[1]]).to be_nil
           end
@@ -90,7 +92,8 @@ describe Board do
             rook_capture_ally = board_rearranged[old_position[0]][old_position[1]]
             ally = board_rearranged[new_position[0]][new_position[1]]
 
-            expect(board_rearranged.move_piece(rook_capture_ally, new_position)).to eq(false)
+            result = { move_successful: false, captured: false, en_passant: false, promote_pawn: false }
+            expect(board_rearranged.move_piece(rook_capture_ally, new_position)).to eq(result)
             expect(board_rearranged[new_position[0]][new_position[1]]).to eq(ally)
             expect(board_rearranged[old_position[0]][old_position[1]]).to eq(rook_capture_ally)
           end
@@ -104,7 +107,8 @@ describe Board do
 
           rook_blocked = board_rearranged[old_position[0]][old_position[1]]
 
-          expect(board_rearranged.move_piece(rook_blocked, new_position)).to eq(false)
+          result = { move_successful: false, captured: false, en_passant: false, promote_pawn: false }
+          expect(board_rearranged.move_piece(rook_blocked, new_position)).to eq(result)
           expect(board_rearranged[new_position[0]][new_position[1]]).to be_nil
           expect(board_rearranged[old_position[0]][old_position[1]]).to eq(rook_blocked)
         end
@@ -115,7 +119,8 @@ describe Board do
 
           knight = board_rearranged[old_position[0]][old_position[1]]
 
-          expect(board_rearranged.move_piece(knight, new_position)).to eq(true)
+          result = { move_successful: true, captured: false, en_passant: false, promote_pawn: false }
+          expect(board_rearranged.move_piece(knight, new_position)).to eq(result)
           expect(board_rearranged[new_position[0]][new_position[1]]).to eq(knight)
           expect(board_rearranged[old_position[0]][old_position[1]]).to be_nil
         end
@@ -128,7 +133,9 @@ describe Board do
         invalid_position = [3, 1]
 
         rook_invalid = board_rearranged[old_position[0]][old_position[1]]
-        expect(board_rearranged.move_piece(rook_invalid, invalid_position)).to eq(false)
+
+        result = { move_successful: false, captured: false, en_passant: false, promote_pawn: false }
+        expect(board_rearranged.move_piece(rook_invalid, invalid_position)).to eq(result)
         expect(board_rearranged[invalid_position[0]][invalid_position[1]]).to be_nil
         expect(board_rearranged[old_position[0]][old_position[1]]).to eq(rook_invalid)
       end
@@ -142,7 +149,8 @@ describe Board do
 
           pawn_free = board_rearranged[old_position[0]][old_position[1]]
 
-          expect(board_rearranged.move_piece(pawn_free, new_position)).to eq(true)
+          result = { move_successful: true, captured: false, en_passant: false, promote_pawn: false }
+          expect(board_rearranged.move_piece(pawn_free, new_position)).to eq(result)
           expect(board_rearranged[new_position[0]][new_position[1]]).to eq(pawn_free)
           expect(board_rearranged[old_position[0]][old_position[1]]).to be_nil
         end
@@ -154,7 +162,8 @@ describe Board do
 
             pawn_double = board_rearranged[old_position[0]][old_position[1]]
 
-            expect(board_rearranged.move_piece(pawn_double, new_position)).to eq(true)
+            result = { move_successful: true, captured: false, en_passant: false, promote_pawn: false }
+            expect(board_rearranged.move_piece(pawn_double, new_position)).to eq(result)
             expect(board_rearranged[new_position[0]][new_position[1]]).to eq(pawn_double)
             expect(board_rearranged[old_position[0]][old_position[1]]).to be_nil
           end
@@ -167,7 +176,8 @@ describe Board do
 
             pawn_double_fail = board_rearranged[old_position[0]][old_position[1]]
 
-            expect(board_rearranged.move_piece(pawn_double_fail, new_position)).to eq(false)
+            result = { move_successful: false, captured: false, en_passant: false, promote_pawn: false }
+            expect(board_rearranged.move_piece(pawn_double_fail, new_position)).to eq(result)
             expect(board_rearranged[new_position[0]][new_position[1]]).to be_nil
             expect(board_rearranged[old_position[0]][old_position[1]]).to eq(pawn_double_fail)
           end
@@ -182,7 +192,8 @@ describe Board do
           pawn_blocked = board_rearranged[old_position[0]][old_position[1]]
           blocking_piece = board_rearranged[new_position[0]][new_position[1]]
 
-          expect(board_rearranged.move_piece(pawn_blocked, new_position)).to eq(false)
+          result = { move_successful: false, captured: false, en_passant: false, promote_pawn: false }
+          expect(board_rearranged.move_piece(pawn_blocked, new_position)).to eq(result)
           expect(board_rearranged[new_position[0]][new_position[1]]).to eq(blocking_piece)
           expect(board_rearranged[old_position[0]][old_position[1]]).to eq(pawn_blocked)
         end
@@ -203,7 +214,8 @@ describe Board do
           let(:new_position) { [4, 3] }
           let(:pawn_capture_opponent) { board_rearranged[old_position[0]][old_position[1]] }
           it 'captures opponent piece and returns true' do
-            expect(board_rearranged.move_piece(pawn_capture_opponent, new_position)).to eq(true)
+            result = { move_successful: true, captured: true, en_passant: false, promote_pawn: false }
+            expect(board_rearranged.move_piece(pawn_capture_opponent, new_position)).to eq(result)
             expect(board_rearranged[new_position[0]][new_position[1]]).to eq(pawn_capture_opponent)
             expect(board_rearranged[old_position[0]][old_position[1]]).to be_nil
           end
@@ -236,7 +248,8 @@ describe Board do
             pawn_capture_ally = board_rearranged[old_position[0]][old_position[1]]
             ally = board_rearranged[new_position[0]][new_position[1]]
 
-            expect(board_rearranged.move_piece(pawn_capture_ally, new_position)).to eq(false)
+            result = { move_successful: false, captured: false, en_passant: false, promote_pawn: false }
+            expect(board_rearranged.move_piece(pawn_capture_ally, new_position)).to eq(result)
             expect(board_rearranged[new_position[0]][new_position[1]]).to eq(ally)
             expect(board_rearranged[old_position[0]][old_position[1]]).to eq(pawn_capture_ally)
           end
@@ -249,7 +262,8 @@ describe Board do
 
             pawn_capture_fail = board_rearranged[old_position[0]][old_position[1]]
 
-            expect(board_rearranged.move_piece(pawn_capture_fail, new_position)).to eq(false)
+            result = { move_successful: false, captured: false, en_passant: false, promote_pawn: false }
+            expect(board_rearranged.move_piece(pawn_capture_fail, new_position)).to eq(result)
             expect(board_rearranged[new_position[0]][new_position[1]]).to be_nil
             expect(board_rearranged[old_position[0]][old_position[1]]).to eq(pawn_capture_fail)
           end

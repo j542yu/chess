@@ -24,12 +24,14 @@ class HumanPlayer
 
       alphanum_new_position, indices_new_position = ask_for_position(board, :new)
 
-      if board.move_piece(piece, indices_new_position)
-        puts "\n#{@name} moved #{piece.class.name} from #{alphanum_original_position} to #{alphanum_new_position}"
+      result = board.move_piece(piece, indices_new_position)
+      if result[:move_successful]
+        announce_move(result, piece, alphanum_original_position, alphanum_new_position)
+        promote_pawn(board, piece) if result[:promote_pawn]
         return
+      else
+        announce_failed_move(piece, alphanum_new_position)
       end
-
-      puts "\n#{piece.class.name} cannot move to #{alphanum_new_position}. It's an illegal move. Try again please!"
     end
   end
 
@@ -104,5 +106,48 @@ class HumanPlayer
 
   def alphanum_to_indices(alphanum)
     [alphanum[0].ord - 'a'.ord, 8 - alphanum[1].to_i]
+  end
+
+  def announce_move(result, piece, alphanum_original_position, alphanum_new_position)
+    print "\n#{@name} moved #{piece.class.name} from #{alphanum_original_position} to #{alphanum_new_position} "
+    puts 'and captured an opponent piece' if result[:captured]
+    puts 'and captured an opponent pawn via en passant' if result[:en_passant]
+  end
+
+  def announce_failed_move(piece, alphanum_new_position)
+    puts "\n#{piece.class.name} cannot move to #{alphanum_new_position}. It's an illegal move. Try again please!"
+  end
+
+  def promote_pawn(board, piece)
+    return unless ask_to_promote_pawn
+
+    promotion_piece_name = ask_promotion_piece_name
+    board.promote_pawn(piece, promotion_piece_name)
+
+    puts "\n#{@name}'s pawn at #{piece.position} has been promoted to a #{promotion_piece_name}."
+  end
+
+  def ask_to_promote_pawn # rubocop:disable Metrics/MethodLength
+    print "\n#{@name}, your pawn is eligible to be promoted! Would you like to promote your pawn? (Y/N)\n=> "
+    loop do
+      case gets.chomp.upcase
+      when 'Y'
+        return true
+      when 'N'
+        return false
+      else
+        print "\nInvalid input. Please enter 'Y' to promote your pawn, or 'N' to leave the pawn as is.\n=> "
+      end
+    end
+  end
+
+  def ask_promotion_piece_name
+    print "\n What piece would you like to promote your pawn to? (Queen/Knight/Rook/Bishop)\n=> "
+    loop do
+      choice = gets.chomp.capitalize
+      return choice if %w[Queen Knight Rook Bishop].include?(choice)
+
+      print "\nInvalid input. Please enter 'Queen', 'Knight', 'Rook', or 'Bishop'\n=> "
+    end
   end
 end

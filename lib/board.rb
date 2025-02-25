@@ -40,14 +40,18 @@ class Board
     color == :black ? @pieces_black : @pieces_white
   end
 
-  # returns true if piece was successfully moved, or false otherwise
-  def move_piece(moving_piece, new_position)
+  # returns boolean hash with move results (move_successful, captured, en_passant, promote_pawn)
+  def move_piece(moving_piece, new_position) # rubocop:disable Metrics/MethodLength
+    result = { move_successful: false, captured: false, en_passant: false, promote_pawn: false }
+
     old_position = moving_piece.position
 
-    return false unless valid_move?(moving_piece, old_position, new_position)
+    return result unless valid_move?(moving_piece, old_position, new_position)
 
-    captured_piece = self[*new_position]
-    remove_captured_piece(moving_piece, captured_piece)
+    result[:move_successful] = true
+
+    capture_result = remove_captured_piece(moving_piece, self[*new_position])
+    result.merge!(capture_result)
 
     self[*old_position] = nil
     self[*new_position] = moving_piece
@@ -55,7 +59,7 @@ class Board
 
     @move_history << [moving_piece, old_position, new_position]
 
-    true
+    result.merge!(can_promote_pawn?(moving_piece))
   end
 
   def checkmate?(color)
@@ -71,6 +75,17 @@ class Board
     return true if threatening_pieces.size > 1
 
     !can_intercept_threat?(king, threatening_pieces[0])
+  end
+
+  def promote_pawn(piece, promotion_piece_name)
+    color = piece.color
+    ally_pieces = ally_pieces(color)
+    position = piece.position
+    promotion_piece = Object.const_get(promotion_piece_name).new(position, color)
+
+    self[*position] = promotion_piece
+    ally_pieces.delete(piece)
+    ally_pieces.push(promotion_piece)
   end
 
   private
@@ -114,12 +129,26 @@ class Board
   end
 
   def remove_captured_piece(capturing_piece, captured_piece)
-    captured_piece = @move_history[-1][0] if captured_piece.nil? && en_passant?(capturing_piece)
+    result = { captured: false, en_passant: false }
 
-    return if captured_piece.nil?
+    if captured_piece.nil? && en_passant?(capturing_piece)
+      captured_piece = @move_history[-1][0]
+      result[:en_passant] = true
+    end
+
+    return result if captured_piece.nil?
 
     ally_pieces(captured_piece.color).delete(captured_piece)
 
     self[*captured_piece.position] = nil
+
+    result[:captured] = true
+    result
+  end
+
+  def can_promote_pawn?(moving_piece)
+    final_row_idx = moving_piece.color == :black ? 7 : 0
+
+    moving_piece.position[1] == final_row_idx ? { promote_pawn: true } : { promote_pawn: false }
   end
 end
