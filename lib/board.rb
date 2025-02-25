@@ -1,20 +1,22 @@
 # frozen_string_literal: true
 
 require_relative 'piece'
-require_relative 'modules/check_validation'
-require_relative 'modules/move_validation'
 require_relative 'modules/board_display'
 require_relative 'modules/board_serializable'
+require_relative 'modules/check_validation'
+require_relative 'modules/move_validation'
+require_relative 'modules/move_piece_helpers'
 
 # This class represents the chess game board
 #
 # It handles storing the positions of all game pieces in a 2D array,
 # and moving game pieces
 class Board
-  include CheckValidation
-  include MoveValidation
   include BoardDisplay
   include BoardSerializable
+  include CheckValidation
+  include MoveValidation
+  include MovePieceHelpers
 
   def initialize(pieces = [[], [], { black: nil, white: nil }], board = nil, move_history = [])
     @pieces_black, @pieces_white, @kings = pieces
@@ -40,26 +42,20 @@ class Board
     color == :black ? @pieces_black : @pieces_white
   end
 
-  # returns boolean hash with move results (move_successful, captured, en_passant, promote_pawn)
-  def move_piece(moving_piece, new_position) # rubocop:disable Metrics/MethodLength
-    result = { move_successful: false, captured: false, en_passant: false, promote_pawn: false }
+  # returns boolean hash with move info (move_valid, captured, en_passant, castling, promote_pawn)
+  def move_piece(moving_piece, new_position)
+    result = { move_valid: false, capture: false, en_passant: false, castling: false, promote_pawn: false }
 
     old_position = moving_piece.position
 
-    return result unless valid_move?(moving_piece, old_position, new_position)
+    result.merge!(valid_move?(moving_piece, old_position, new_position))
+    return result unless result[:move_valid]
 
-    result[:move_successful] = true
-
-    capture_result = remove_captured_piece(moving_piece, self[*new_position])
-    result.merge!(capture_result)
-
-    self[*old_position] = nil
-    self[*new_position] = moving_piece
-    moving_piece.update_position(new_position)
-
-    @move_history << [moving_piece, old_position, new_position]
-
-    result.merge!(can_promote_pawn?(moving_piece))
+    if result[:castling]
+      move_castling_pieces(moving_piece, old_position, new_position, result)
+    else
+      move_generic_piece(moving_piece, old_position, new_position, result)
+    end
   end
 
   def checkmate?(color)
@@ -75,17 +71,6 @@ class Board
     return true if threatening_pieces.size > 1
 
     !can_intercept_threat?(king, threatening_pieces[0])
-  end
-
-  def promote_pawn(piece, promotion_piece_name)
-    color = piece.color
-    ally_pieces = ally_pieces(color)
-    position = piece.position
-    promotion_piece = Object.const_get(promotion_piece_name).new(position, color)
-
-    self[*position] = promotion_piece
-    ally_pieces.delete(piece)
-    ally_pieces.push(promotion_piece)
   end
 
   private
@@ -126,29 +111,5 @@ class Board
       board[column_idx][row_idx] = pawn_new
       pieces_all << pawn_new
     end
-  end
-
-  def remove_captured_piece(capturing_piece, captured_piece)
-    result = { captured: false, en_passant: false }
-
-    if captured_piece.nil? && en_passant?(capturing_piece)
-      captured_piece = @move_history[-1][0]
-      result[:en_passant] = true
-    end
-
-    return result if captured_piece.nil?
-
-    ally_pieces(captured_piece.color).delete(captured_piece)
-
-    self[*captured_piece.position] = nil
-
-    result[:captured] = true
-    result
-  end
-
-  def can_promote_pawn?(moving_piece)
-    final_row_idx = moving_piece.color == :black ? 7 : 0
-
-    moving_piece.position[1] == final_row_idx ? { promote_pawn: true } : { promote_pawn: false }
   end
 end

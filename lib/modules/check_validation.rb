@@ -34,8 +34,7 @@ module CheckValidation
   end
 
   def in_line_of_attack?(piece, king)
-    column_difference = (piece.position[0] - king.position[0]).abs
-    row_difference = (piece.position[1] - king.position[1]).abs
+    column_difference, row_difference = position_difference(piece.position, king.position)
 
     column_difference.zero? || row_difference.zero? || column_difference == row_difference
   end
