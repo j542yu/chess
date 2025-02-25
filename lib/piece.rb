@@ -30,6 +30,18 @@ class Piece
     @position = new_position
     update_next_moves
   end
+
+  def to_h
+    {
+      type: self.class.name,
+      position: @position,
+      color: @color
+    }
+  end
+
+  def self.from_h(piece_data)
+    new(piece_data[:position], piece_data[:color])
+  end
 end
 
 # This is a child class of Piece that represents the King game piece

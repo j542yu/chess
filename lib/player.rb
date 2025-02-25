@@ -5,10 +5,10 @@
 # It handles storing the player's name
 # and interacting with the player via the command line
 class HumanPlayer
-  def initialize(color, player_num = 0)
-    @player_num = player_num # greet differently if two human players VS human against computer
-    @name = ask_player_name
+  def initialize(color, player_num = 0, name = nil)
     @color = color
+    @player_num = player_num # greet differently if two human players VS human against computer
+    @name = name || ask_player_name
   end
 
   attr_reader :name, :color
@@ -33,6 +33,19 @@ class HumanPlayer
     end
   end
 
+  def to_h
+    {
+      type: self.class.name,
+      color: @color,
+      player_num: @player_num,
+      name: @name
+    }
+  end
+
+  def self.from_h(player_data)
+    new(player_data[:color], player_data[:player_num], player_data[:name])
+  end
+
   private
 
   def ask_player_name
@@ -42,6 +55,7 @@ class HumanPlayer
     name = gets.chomp
     return name unless name.empty?
 
+    puts "Alright then, you'll be Player #{@player_num}."
     "Player #{@player_num}"
   end
 

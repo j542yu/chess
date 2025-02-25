@@ -4,6 +4,7 @@ require_relative 'piece'
 require_relative 'check_validation'
 require_relative 'move_validation'
 require_relative 'board_io'
+require_relative 'serializable/board_serializable'
 
 # This class represents the chess game board
 #
@@ -13,26 +14,30 @@ class Board
   include CheckValidation
   include MoveValidation
   include BoardIO
+  include BoardSerializable
 
-  def initialize(board = nil)
-    @pieces_black = []
-    @pieces_white = []
-    @kings = { black: nil, white: nil }
+  def initialize(pieces = [[], [], { black: nil, white: nil }], board = nil, move_history = [])
+    @pieces_black, @pieces_white, @kings = pieces
 
-    # allow saved board from previous game to be loaded if desired
     @board = board || generate_default_board
 
-    @move_history = []
+    @move_history = move_history
   end
 
   def [](column_idx, row_idx = nil)
-    # require 'pry-byebug'
-    # binding.pry
     if row_idx.nil?
       @board[column_idx] # board[column_idx][row_idx]
     else
       @board[column_idx][row_idx] # board[*position]
     end
+  end
+
+  def opponent_pieces(color)
+    color == :black ? @pieces_white : @pieces_black
+  end
+
+  def ally_pieces(color)
+    color == :black ? @pieces_black : @pieces_white
   end
 
   # returns true if piece was successfully moved, or false otherwise

@@ -2,54 +2,41 @@
 
 require_relative 'player'
 require_relative 'board'
+require_relative 'serializable/game_serializable'
 
 # This class represents one round of the game chess
 #
 # It handles taking turns, storing past moves, and
 # special move logic (ex. en passant, castling)
 class Game
-  def initialize(player_one = HumanPlayer.new(:white, 1), player_two = HumanPlayer.new(:black, 2))
-    @players = [player_one, player_two]
-    @current_player_id = 0
-    @board = Board.new
+  include GameSerializable
+  def initialize(players = [HumanPlayer.new(:white, 1), HumanPlayer.new(:black, 2)],
+                 current_player_id = 0, board = Board.new)
+    @players = players
+    @current_player_id = current_player_id
+    @board = board
+
+    play
   end
 
   def play
-    announce_intro
+    puts "\nPress Ctrl-C to exit the game at any point. Let the games begin!"
     loop do
       current_player.make_move(@board)
-      break if @board.checkmate?(current_player.color)
+      if @board.checkmate?(current_player.color)
+        announce_checkmate
+        return
+      end
 
       switch_players
+      save_game?
     end
-    announce_end
   end
 
   private
 
-  def announce_intro # rubocop:disable Metrics/MethodLength
-    puts <<~HEREDOC
-
-
-      ———————————————————————————————————————————————————————————————
-      Welcome to Chess!
-
-      If you are not familiar with the rules, take a look at this:
-        https://www.instructables.com/Playing-Chess/
-
-    HEREDOC
-
-    if @players[0].instance_of?(HumanPlayer) && @players[1].instance_of?(HumanPlayer)
-      puts "#{@players[0].name} will play against #{@players[1].name}."
-    else
-      puts "You will be battling a computer player!!! (don't worry, it's not very smart...)"
-    end
-
-    puts "\nLet the game begin!\n———————————————————————————————————————————————————————————————\n\n"
-  end
-
-  def announce_end
-    puts "Game over! #{current_player.name} has been checkmated."
+  def announce_checkmate
+    puts "\nGame over! #{current_player.name} has been checkmated. Good game!"
   end
 
   def current_player
@@ -62,5 +49,21 @@ class Game
 
   def switch_players
     @current_player_id = 1 - @current_player_id
+  end
+
+  def save_game? # rubocop:disable Metrics/MethodLength
+    print "Press Enter to continue, or type in 'S' to save the current game\n=> "
+
+    loop do
+      case gets.chomp.upcase
+      when ''
+        return false
+      when 'S'
+        save_game
+        return true
+      end
+
+      print "\nInvalid choice. Please click Enter to continue or type in 'S' to save the current game.\n=> "
+    end
   end
 end

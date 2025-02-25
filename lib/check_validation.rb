@@ -14,14 +14,6 @@ module CheckValidation
     end
   end
 
-  def opponent_pieces(color)
-    color == :black ? @pieces_white : @pieces_black
-  end
-
-  def ally_pieces(color)
-    color == :black ? @pieces_black : @pieces_white
-  end
-
   private
 
   def pinned_pieces(king)
