@@ -3,6 +3,8 @@
 require 'fileutils'
 require 'yaml'
 
+using Rainbow
+
 # This module handles serializing Game object data and
 # saving / opening saved games,
 # and is included in the Game class
@@ -24,7 +26,7 @@ module GameSerializable
 
     File.open(file_name, 'w') { |file| file.puts file_contents }
 
-    puts "\nCurrent game progress has been saved under #{file_name}."
+    puts "\nCurrent game progress has been saved to #{file_name}.".green
   end
 
   def to_h
