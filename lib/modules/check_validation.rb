@@ -94,8 +94,14 @@ module CheckValidation
       path_clear?(opponent_piece, opponent_piece.position, king_position)
   end
 
-  def pawn_threatens_king?(opponent_piece, opponent_color, king_position)
-    diagonal_moves = opponent_color == :black ? [[1, 1], [-1, 1]] : [[1, -1], [-1, -1]]
+  def pawn_threatens_king?(opponent_piece, opponent_color, king_position) # rubocop:disable Metrics/MethodLength
+    diagonal_moves = case opponent_color
+                     when :black
+                       [[1, 1], [-1, 1]]
+                     when :white
+                       [[1, -1], [-1, -1]]
+                     end
+
     diagonal_moves.each do |diagonal_move|
       return true if king_position == [opponent_piece.position[0] + diagonal_move[0],
                                        opponent_piece.position[1] + diagonal_move[1]]

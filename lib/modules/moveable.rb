@@ -73,8 +73,14 @@ end
 module PawnMoveable
   private
 
-  def generate_pawn_moves(color, next_moves) # rubocop:disable Metrics/AbcSize
-    unit_move = color == :black ? [0, 1] : [0, -1]
+  def generate_pawn_moves(color, next_moves) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+    unit_move = case color
+                when :black
+                  [0, 1]
+                when :white
+                  [0, -1]
+                end
+
     next_move = [position[0], position[1] + unit_move[1]]
 
     next_moves << next_move if between_board_bounds?(next_move)

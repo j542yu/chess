@@ -39,11 +39,21 @@ class Board
   end
 
   def opponent_pieces(color)
-    color == :black ? @pieces_white : @pieces_black
+    case color
+    when :black
+      @pieces_white
+    when :white
+      @pieces_black
+    end
   end
 
   def ally_pieces(color)
-    color == :black ? @pieces_black : @pieces_white
+    case color
+    when :black
+      @pieces_black
+    when :white
+      @pieces_white
+    end
   end
 
   # returns boolean hash with move info (move_valid, captured, en_passant, castling, promote_pawn)

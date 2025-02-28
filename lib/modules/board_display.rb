@@ -29,7 +29,12 @@ module BoardDisplay
   end
 
   def character(piece, color)
-    piece_characters = color == :black ? PIECE_CHARACTERS_BLACK : PIECE_CHARACTERS_WHITE
+    piece_characters = case color
+                       when :black
+                         PIECE_CHARACTERS_BLACK
+                       when :white
+                         PIECE_CHARACTERS_WHITE
+                       end
 
     piece_characters[piece]
   end

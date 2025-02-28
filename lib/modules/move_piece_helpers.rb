@@ -32,7 +32,7 @@ module MovePieceHelpers
 
     old_rook_position = rook.position
 
-    column_offset = kingside(new_king_position) ? 1 : -1
+    column_offset = kingside?(new_king_position) ? 1 : -1
     new_rook_position = [old_king_position[0] + column_offset, old_rook_position[1]]
 
     commit_move(king, old_king_position, new_king_position)
@@ -71,7 +71,12 @@ module MovePieceHelpers
     result = { promote_pawn: false }
     return result unless moving_piece.instance_of?(Pawn)
 
-    final_row_idx = moving_piece.color == :black ? 7 : 0
+    final_row_idx = case moving_piece.color
+                    when :black
+                      7
+                    when :white
+                      0
+                    end
 
     result[:promote_pawn] = true if moving_piece.position[1] == final_row_idx
 

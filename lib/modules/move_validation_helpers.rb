@@ -36,12 +36,12 @@ module CastlingValidation
   end
 
   def castling_rook(new_position, color)
-    rook_column_idx = kingside(new_position) ? 7 : 0
+    rook_column_idx = kingside?(new_position) ? 7 : 0
     piece = self[rook_column_idx][new_position[1]]
     piece if piece.instance_of?(Rook) && piece.color == color
   end
 
-  def kingside(new_king_position)
+  def kingside?(new_king_position)
     new_king_position[0] > 4
   end
 end
@@ -66,7 +66,12 @@ module PawnValidation
   def pawn_diagonal_capture?(moving_piece, old_position, new_position)
     return false unless occupied?(new_position) && opponent?(moving_piece, new_position)
 
-    diagonal_moves = moving_piece.color == :black ? [[1, 1], [-1, 1]] : [[1, -1], [-1, -1]]
+    diagonal_moves = case moving_piece.color
+                     when :black
+                       [[1, 1], [-1, 1]]
+                     when :white
+                       [[1, -1], [-1, -1]]
+                     end
 
     diagonal_moves.any? do |diagonal_move|
       new_position == [old_position[0] + diagonal_move[0], old_position[1] + diagonal_move[1]]
