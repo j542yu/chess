@@ -4,6 +4,8 @@
 # specific to validating castling moves, and is included
 # in the MoveValidation module
 module CastlingValidation
+  private
+
   def castling?(king, old_position, new_position)
     color = king.color
     return false unless valid_king_castling?(king, color, old_position, new_position)
@@ -11,7 +13,7 @@ module CastlingValidation
     rook = castling_rook(new_position, color)
     return false unless !rook.nil? && !moved?(rook)
 
-    valid_castling_path?(rook, king.position, color)
+    valid_castling_path?(king, rook.position)
   end
 
   def valid_king_castling?(king, color, old_position, new_position)
@@ -20,8 +22,8 @@ module CastlingValidation
       !in_check?(color) && !in_check?(color, new_position)
   end
 
-  def valid_castling_path?(king, rook_position, color)
-    path(king, king.position, rook_position).none? { |position| in_check?(color, position) }
+  def valid_castling_path?(king, rook_position)
+    path_clear?(king, king.position, rook_position, validate_castling_path: true)
   end
 
   def correct_castling_positioning(old_position, new_position)
@@ -48,6 +50,8 @@ end
 # specific to validating pawn moves, and is included
 # in the MoveValidation module
 module PawnValidation
+  private
+
   def valid_pawn_move?(moving_piece, old_position, new_position)
     pawn_forward_move?(moving_piece, old_position, new_position) ||
       pawn_diagonal_capture?(moving_piece, old_position, new_position) ||

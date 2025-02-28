@@ -5,6 +5,17 @@
 # including commiting the actual move, performing captures,
 # and promoting pawns
 module MovePieceHelpers
+  def promote_pawn(piece, promotion_piece_name)
+    color = piece.color
+    ally_pieces = ally_pieces(color)
+    position = piece.position
+    promotion_piece = Object.const_get(promotion_piece_name).new(position, color)
+
+    self[*position] = promotion_piece
+    ally_pieces.delete(piece)
+    ally_pieces.push(promotion_piece)
+  end
+
   private
 
   def move_generic_piece(moving_piece, old_position, new_position, result)
@@ -57,23 +68,17 @@ module MovePieceHelpers
   end
 
   def can_promote_pawn?(moving_piece)
+    result = { promote_pawn: false }
+    return result unless moving_piece.instance_of?(Pawn)
+
     final_row_idx = moving_piece.color == :black ? 7 : 0
 
-    moving_piece.position[1] == final_row_idx ? { promote_pawn: true } : { promote_pawn: false }
+    result[:promote_pawn] = true if moving_piece.position[1] == final_row_idx
+
+    result
   end
 
   def position_difference(position_one, position_two)
     [(position_one[0] - position_two[0]).abs, (position_one[1] - position_two[1]).abs]
-  end
-
-  def promote_pawn(piece, promotion_piece_name)
-    color = piece.color
-    ally_pieces = ally_pieces(color)
-    position = piece.position
-    promotion_piece = Object.const_get(promotion_piece_name).new(position, color)
-
-    self[*position] = promotion_piece
-    ally_pieces.delete(piece)
-    ally_pieces.push(promotion_piece)
   end
 end

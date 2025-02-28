@@ -34,6 +34,10 @@ class Board
     end
   end
 
+  def []=(column_idx, row_idx, value)
+    @board[column_idx][row_idx] = value
+  end
+
   def opponent_pieces(color)
     color == :black ? @pieces_white : @pieces_black
   end
@@ -62,22 +66,19 @@ class Board
     return false unless in_check?(color)
 
     king = @kings[color]
-    return true unless can_escape_check?(king)
+    return false if can_escape_check?(king, color)
 
     threatening_pieces = opponent_pieces(color).select do |opponent_piece|
       piece_threatens_king?(opponent_piece, opponent_piece.color, king.position)
     end
 
-    return true if threatening_pieces.size > 1
+    return false if threatening_pieces.empty? ||
+                    (threatening_pieces.size == 1 && can_intercept_threat?(king, threatening_pieces[0], color))
 
-    !can_intercept_threat?(king, threatening_pieces[0])
+    true
   end
 
   private
-
-  def []=(column_idx, row_idx, value)
-    @board[column_idx][row_idx] = value
-  end
 
   def generate_default_board
     board = Array.new(8) { Array.new(8) }

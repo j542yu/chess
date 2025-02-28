@@ -4,6 +4,8 @@
 
 # This module handles generating moves within board boundaries given the direction of move(s) one unit in length
 module Moveable
+  private
+
   def generate_next_extending_moves(unit_moves, next_moves)
     unit_moves.each do |unit_move|
       # since board is 8 x 8, this tests all possible moves to the remaining 7 positions
@@ -31,6 +33,9 @@ end
 # This module handles generating moves within board boundaries in the diagonal direction
 module DiagonalMoveable
   include Moveable
+
+  private
+
   def generate_diagonal_moves(next_moves)
     unit_moves = [[1, 1], [1, -1], [-1, 1], [-1, -1]]
 
@@ -41,6 +46,9 @@ end
 # This module handles generating moves within board boundaries in the horizontal and vertical direction
 module HorizontalVerticalMoveable
   include Moveable
+
+  private
+
   def generate_horizontal_and_vertical_moves(next_moves)
     unit_moves = [[1, 0], [-1, 0], [0, 1], [0, -1]]
 
@@ -51,6 +59,9 @@ end
 # This module handles generating moves within board boundaries for Knight game pieces
 module KnightMoveable
   include Moveable
+
+  private
+
   def generate_knight_moves(next_moves)
     unit_moves = [[2, 1], [2, -1], [-2, 1], [-2, -1], [1, 2], [1, -2], [-1, 2], [-1, -2]]
 
@@ -60,6 +71,8 @@ end
 
 # This module handles generating moves within board boundaries for Pawn game pieces
 module PawnMoveable
+  private
+
   def generate_pawn_moves(color, next_moves) # rubocop:disable Metrics/AbcSize
     unit_move = color == :black ? [0, 1] : [0, -1]
     next_move = [position[0], position[1] + unit_move[1]]
@@ -86,6 +99,9 @@ end
 # This module handles generating moves within board boundaries for King game pieces
 module KingMoveable
   include Moveable
+
+  private
+
   def generate_king_moves(next_moves)
     unit_moves = [[1, 0], [1, 1], [0, 1], [-1, 0], [-1, -1], [0, -1], [1, -1], [-1, 1]]
 

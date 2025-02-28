@@ -10,17 +10,32 @@ module MoveValidation
 
   private
 
-  def valid_move?(moving_piece, old_position, new_position)
+  def valid_move?(moving_piece, old_position, new_position) # rubocop:disable Metrics/MethodLength
     result = { move_valid: false, castling: false }
+
+    return result if illegal_pinned_move?(moving_piece, new_position)
 
     if moving_piece.instance_of?(Pawn)
       result[:move_valid] = valid_pawn_move?(moving_piece, old_position, new_position)
+    elsif castling?(moving_piece, old_position, new_position)
+      result[:move_valid] = true
+      result[:castling] = true
     else
       result[:move_valid] = valid_generic_piece_move?(moving_piece, old_position, new_position)
-      result[:castling] = castling?(moving_piece, old_position, new_position)
     end
 
     result
+  end
+
+  def illegal_pinned_move?(moving_piece, new_position)
+    color = moving_piece.color
+    king = @kings[color]
+    pinned_status = validate_pinned_piece(moving_piece, king, color, possible_pinning_pieces(king.position, color))
+    return false unless pinned_status[:pinned]
+
+    return true if moving_piece.instance_of?(Knight)
+
+    !pinned_status[:line_of_attack].include?(new_position)
   end
 
   def valid_generic_piece_move?(moving_piece, old_position, new_position)
@@ -29,11 +44,19 @@ module MoveValidation
       (!occupied?(new_position) || opponent?(moving_piece, new_position))
   end
 
-  def path_clear?(moving_piece, old_position, new_position)
+  def path_clear?(moving_piece, old_position, new_position, validate_castling_path: false)
     return true if moving_piece.instance_of?(Knight)
 
-    path = path(moving_piece, old_position, new_position)
-    path.all? { |position| self[*position].nil? }
+    return false if validate_castling_path && path.any? { |position| in_check?(moving_piece.color, position) }
+
+    path(moving_piece, old_position, new_position).all? do |position|
+      # avoid counting king as a blocking piece when testing king escape moves
+      self[*position].nil? || escaping_king?(position, moving_piece)
+    end
+  end
+
+  def escaping_king?(position, moving_piece)
+    self[*position].instance_of?(King) && opponent?(moving_piece, position)
   end
 
   def occupied?(position)

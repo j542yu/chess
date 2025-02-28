@@ -21,26 +21,18 @@ class Game
 
   def play
     loop do
-      current_player.make_move(@board)
+      current_player = @players[@current_player_id]
       if @board.checkmate?(current_player.color)
         GameUI.announce_checkmate(current_player.name)
         return
       end
-
+      current_player.make_move(@board)
       switch_players
       save_game if GameUI.save_game?
     end
   end
 
   private
-
-  def current_player
-    @players[@current_player_id]
-  end
-
-  def other_player
-    @players[1 - @current_player_id]
-  end
 
   def switch_players
     @current_player_id = 1 - @current_player_id
