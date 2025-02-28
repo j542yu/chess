@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 using Rainbow
-require_relative 'human_player'
-require_relative 'computer_player'
+require_relative '../player/human_player'
+require_relative '../player/computer_player'
 
 # This class handles loading saved games and is
 # used in main.rb
