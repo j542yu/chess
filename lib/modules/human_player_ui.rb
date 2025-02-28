@@ -62,10 +62,18 @@ module HumanPlayerUI
     super(self.class.name)
   end
 
-  def announce_failed_move(piece, alphanum_new_position)
+  def announce_failed_move(result, piece, alphanum_new_position)
+    p result
     puts ''
-    puts "#{piece.class.name} cannot move to #{alphanum_new_position}. It's an illegal move."
-      .red.bg(:silver)
+    error_message = "#{piece.class.name} cannot move to #{alphanum_new_position}. "
+    error_message += if result[:endangers_king]
+                       'It would put the king in check.'
+                     else
+                       "It's an illegal move."
+                     end
+
+    puts error_message.red.bg(:silver)
+
     puts 'Try again please!'.blue
   end
 

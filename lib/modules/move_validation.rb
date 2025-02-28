@@ -11,11 +11,11 @@ module MoveValidation
   private
 
   def valid_move?(moving_piece, old_position, new_position) # rubocop:disable Metrics/MethodLength
-    result = { move_valid: false, castling: false }
+    result = { move_valid: false, endangers_king: false, castling: false }
 
-    return result if illegal_pinned_move?(moving_piece, new_position)
-
-    if moving_piece.instance_of?(Pawn)
+    if endangers_king?(moving_piece, new_position)
+      result[:endangers_king] = true
+    elsif moving_piece.instance_of?(Pawn)
       result[:move_valid] = valid_pawn_move?(moving_piece, old_position, new_position)
     elsif castling?(moving_piece, old_position, new_position)
       result[:move_valid] = true
@@ -25,6 +25,11 @@ module MoveValidation
     end
 
     result
+  end
+
+  def endangers_king?(moving_piece, new_position)
+    (moving_piece.instance_of?(King) && in_check?(moving_piece.color, new_position)) ||
+      illegal_pinned_move?(moving_piece, new_position)
   end
 
   def illegal_pinned_move?(moving_piece, new_position)

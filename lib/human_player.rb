@@ -34,7 +34,7 @@ class HumanPlayer < Player
         promote_pawn(board, piece) if result[:promote_pawn]
         return
       else
-        announce_failed_move(piece, alphanum_new_position)
+        announce_failed_move(result, piece, alphanum_new_position)
       end
     end
   end

@@ -58,7 +58,8 @@ class Board
 
   # returns boolean hash with move info (move_valid, captured, en_passant, castling, promote_pawn)
   def move_piece(moving_piece, new_position)
-    result = { move_valid: false, capture: false, en_passant: false, castling: false, promote_pawn: false }
+    result = { move_valid: false, endangers_king: false, capture: false, castling: false,
+               en_passant: false, promote_pawn: false }
 
     old_position = moving_piece.position
 
