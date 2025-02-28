@@ -27,7 +27,7 @@ class ComputerPlayer < Player
 
       piece = pieces.sample
       old_position = piece.position
-      possible_move = piece.next_moves.sample
+      possible_move = possible_moves(piece).sample
       result = board.move_piece(piece, possible_move)
       next unless result[:move_valid]
 
@@ -36,6 +36,47 @@ class ComputerPlayer < Player
       announce_move(result, piece, indices_to_alphanum(old_position), indices_to_alphanum(possible_move), board)
       return
     end
+  end
+
+  def possible_moves(piece)
+    possible_moves = []
+
+    possible_moves.push(*piece.next_moves)
+
+    if piece.instance_of?(King)
+      add_castling_moves(piece, possible_moves)
+    elsif piece.instance_of?(Pawn)
+      add_diagonal_moves(piece, possible_moves)
+    end
+
+    possible_moves
+  end
+
+  def add_castling_moves(piece, possible_moves)
+    position = piece.position
+
+    castling_moves = [[position[0] + 2, position[1]], [position[0] - 2, position[1]]].select do |move|
+      piece.between_board_bounds?(move)
+    end
+
+    possible_moves.push(*castling_moves)
+  end
+
+  def add_diagonal_moves(piece, possible_moves) # rubocop:disable Metrics/MethodLength
+    position = piece.position
+
+    new_row_idx = case piece.color
+                  when :black
+                    position[1] - 1
+                  when :white
+                    position[1] + 1
+                  end
+
+    diagonal_moves = [[position[0] - 1, new_row_idx], [position[0] + 1, new_row_idx]].select do |move|
+      piece.between_board_bounds?(move)
+    end
+
+    possible_moves.push(*diagonal_moves)
   end
 
   def indices_to_alphanum(indices)
