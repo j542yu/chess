@@ -64,7 +64,13 @@ module PawnValidation
   end
 
   def pawn_diagonal_capture?(moving_piece, old_position, new_position)
-    pawn_can_diagonal_move?(moving_piece, old_position, new_position) && opponent?(moving_piece, new_position)
+    return false unless occupied?(new_position) && opponent?(moving_piece, new_position)
+
+    diagonal_moves = moving_piece.color == :black ? [[1, 1], [-1, 1]] : [[1, -1], [-1, -1]]
+
+    diagonal_moves.any? do |diagonal_move|
+      new_position == [old_position[0] + diagonal_move[0], old_position[1] + diagonal_move[1]]
+    end
   end
 
   def en_passant?(moving_piece)
@@ -87,15 +93,5 @@ module PawnValidation
     row_move = (last_move[1][1] - last_move[2][1]).abs
 
     column_move.zero? && row_move == 2
-  end
-
-  def pawn_can_diagonal_move?(moving_piece, old_position, new_position)
-    return false unless occupied?(new_position)
-
-    diagonal_moves = moving_piece.color == :black ? [[1, 1], [-1, 1]] : [[1, -1], [-1, -1]]
-
-    diagonal_moves.any? do |diagonal_move|
-      new_position == [old_position[0] + diagonal_move[0], old_position[1] + diagonal_move[1]]
-    end
   end
 end

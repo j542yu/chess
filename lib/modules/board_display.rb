@@ -3,13 +3,13 @@
 # This modules handles input and output of Board instances,
 # including printing to the command line and saving to a file
 module BoardDisplay
-  PIECE_CHARACTERS_WHITE = { Rook: '♖', Bishop: '♗', Knight: '♘',
-                             Queen: '♕', King: '♔', Pawn: '♙' }.freeze
+  PIECE_CHARACTERS_WHITE = { Rook => '♖', Bishop => '♗', Knight => '♘',
+                             Queen => '♕', King => '♔', Pawn => '♙' }.freeze
 
-  PIECE_CHARACTERS_BLACK = { Rook: '♜', Bishop: '♝', Knight: '♞',
-                             Queen: '♛', King: '♚', Pawn: '♟' }.freeze
+  PIECE_CHARACTERS_BLACK = { Rook => '♜', Bishop => '♝', Knight => '♞',
+                             Queen => '♛', King => '♚', Pawn => '♟' }.freeze
 
-  def display # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
+  def display # rubocop:disable Metrics/MethodLength
     print "\n      a    b    c    d    e    f    g    h\n\n"
     print "    —————————————————————————————————————————\n"
 
@@ -17,7 +17,7 @@ module BoardDisplay
       print "#{8 - row_idx}   |"
       @board.each do |column|
         piece = column[row_idx]
-        print piece.nil? ? ' 　 |' : " #{character(piece.class.name.to_sym, piece.color)}  |"
+        print piece.nil? ? ' 　 |' : " #{character(piece.class, piece.color)}  |"
       end
       print "   #{8 - row_idx}\n"
       print "    —————————————————————————————————————————\n"

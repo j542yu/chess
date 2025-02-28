@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require_relative 'modules/player_ui'
+require_relative 'modules/human_player_ui'
 
 # This class represents a human player in chess
 #
 # It handles storing the player's name
 # and interacting with the player via the command line
 class HumanPlayer
-  include PlayerUI
+  include HumanPlayerUI
 
   def initialize(color, player_num = 0, name = nil)
     @color = color

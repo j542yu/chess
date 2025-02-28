@@ -21,7 +21,7 @@ module CheckValidation
     possible_pinning_pieces.each do |opponent_piece|
       ally_pieces = ally_pieces(color)
 
-      path = path(opponent_piece, opponent_piece.position, king.position)
+      path = path(opponent_piece.position, king.position)
       ally_positions_in_path = (path & ally_pieces.map(&:position))
 
       if ally_positions_in_path.size == 1 && piece.position == ally_positions_in_path[0]
@@ -72,14 +72,12 @@ module CheckValidation
   def can_block_path?(king, threatening_piece, ally_piece)
     return false if threatening_piece.instance_of?(Knight) || ally_piece.instance_of?(King)
 
-    path = path(threatening_piece, threatening_piece.position, king.position)
-
-    ally_piece.next_moves.any? { |move| path.include?(move) }
+    ally_piece.next_moves.any? { |move| path(threatening_piece.position, king.position).include?(move) }
   end
 
   def can_capture_threat?(threatening_piece, ally_piece, color)
     if ally_piece.instance_of?(Pawn)
-      pawn_can_diagonal_move?(ally_piece, ally_piece.position, threatening_piece.position)
+      pawn_diagonal_capture?(ally_piece, ally_piece.position, threatening_piece.position)
     elsif ally_piece.instance_of?(King)
       ally_piece.next_moves.any? do |move|
         (move == threatening_piece.position) && !in_check?(color, threatening_piece.position)

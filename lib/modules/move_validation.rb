@@ -47,10 +47,12 @@ module MoveValidation
   def path_clear?(moving_piece, old_position, new_position, validate_castling_path: false)
     return true if moving_piece.instance_of?(Knight)
 
+    path = path(old_position, new_position)
+
     return false if validate_castling_path && path.any? { |position| in_check?(moving_piece.color, position) }
 
-    path(moving_piece, old_position, new_position).all? do |position|
-      # avoid counting king as a blocking piece when testing king escape moves
+    path.all? do |position|
+      # avoid counting opponent king as a blocking piece when testing opponent king escape moves
       self[*position].nil? || escaping_king?(position, moving_piece)
     end
   end
@@ -68,16 +70,18 @@ module MoveValidation
     moving_piece.color != other_piece.color
   end
 
-  def path(moving_piece, old_position, new_position)
-    paths = {
-      Queen: %i[horizontal_path vertical_path diagonal_path],
-      Rook: %i[horizontal_path vertical_path],
-      Bishop: %i[diagonal_path],
-      Pawn: %i[vertical_path],
-      King: %i[horizontal_path] # for castling check only
-    }
+  def path(old_position, new_position)
+    column_difference, row_difference = position_difference(old_position, new_position)
 
-    paths[moving_piece.class.name.to_sym].flat_map { |method| send(method, old_position, new_position) }
+    if column_difference.zero?
+      vertical_path(old_position, new_position)
+    elsif row_difference.zero?
+      horizontal_path(old_position, new_position)
+    elsif column_difference == row_difference
+      diagonal_path(old_position, new_position)
+    else
+      raise StandardError, 'Attempted path not valid'
+    end
   end
 
   def horizontal_path(old_position, new_position)

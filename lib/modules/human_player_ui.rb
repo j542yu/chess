@@ -2,7 +2,7 @@
 
 # This module handles player interactions through the command line
 # and is meant to be used with the Player class
-module PlayerUI
+module HumanPlayerUI
   def ask_player_name
     print @player_num.positive? ? "\nHey, player #{@player_num}! " : 'Hey you, yes you the human. '
     print "What's your name?\n=> "
@@ -50,8 +50,14 @@ module PlayerUI
 
   def announce_move(result, piece, alphanum_original_position, alphanum_new_position)
     print "\n#{@name} moved #{piece.class.name} from #{alphanum_original_position} to #{alphanum_new_position} "
-    puts 'and captured an opponent piece' if result[:capture]
-    puts 'via en passant' if result[:en_passant]
+
+    if result[:castling]
+      puts 'via castling'
+    elsif result[:capture]
+      print 'and captured an opponent piece'
+      print 'via en passant' if result[:en_passant]
+      puts ''
+    end
   end
 
   def announce_failed_move(piece, alphanum_new_position)
