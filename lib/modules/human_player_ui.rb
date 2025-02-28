@@ -2,18 +2,24 @@
 
 using Rainbow
 
-# This module handles player interactions through the command line
-# and is meant to be used with the Player class
+# This module handles human player interactions through the command line
+# and is meant to be used with the HumanPlayer class
+#
+# Some methods build off on inherited methods from the Player class
+# in the PlayerUI module
 module HumanPlayerUI
+  private
+
   def ask_player_name
-    print @player_num.positive? ? "\nHey, player #{@player_num}! ".blue : 'Hey you, yes you the human. '.blue
+    print @player_num.positive? ? "\nHey, player #{@player_num}! ".blue : "\nHey you, yes you the human. ".blue
     print "What's your name?\n=> ".blue
 
     name = gets.chomp
     return name unless name.empty?
 
-    puts "Alright then, you'll be Player #{@player_num}."
-    "Player #{@player_num}"
+    default_name = @player_num.positive? ? "Player #{@player_num}" : 'Unnamed Player'
+    puts "Alright then, you'll be #{default_name}."
+    default_name
   end
 
   def ask_for_position(board, type)
@@ -53,19 +59,7 @@ module HumanPlayerUI
   end
 
   def announce_turn
-    puts "\n———————————————————————————————————————————————————————————————"
-    puts "#{@name}, it's your turn! You are playing #{@color}."
-  end
-
-  def announce_move(result, piece, alphanum_original_position, alphanum_new_position)
-    print "\n#{@name} moved #{piece.class.name} from #{alphanum_original_position} to #{alphanum_new_position}"
-
-    if result[:castling]
-      print ' via castling'
-    elsif result[:capture]
-      print ' and captured an opponent piece'
-      print ' via en passant' if result[:en_passant]
-    end
+    super(self.class.name)
   end
 
   def announce_failed_move(piece, alphanum_new_position)
@@ -73,10 +67,6 @@ module HumanPlayerUI
     puts "#{piece.class.name} cannot move to #{alphanum_new_position}. It's an illegal move."
       .red.bg(:silver)
     puts 'Try again please!'.blue
-  end
-
-  def announce_pawn_promotion(piece, promotion_piece_name)
-    puts "\n#{@name}'s pawn at #{piece.position} has been promoted to a #{promotion_piece_name}."
   end
 
   def ask_to_promote_pawn # rubocop:disable Metrics/MethodLength

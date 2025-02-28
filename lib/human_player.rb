@@ -1,24 +1,24 @@
 # frozen_string_literal: true
 
+require_relative 'player'
 require_relative 'modules/human_player_ui'
 
-# This class represents a human player in chess
+# This class represents a human player in chess,
+# and is a child class of Player
 #
-# It handles storing the player's name
+# It handles storing the player's name and color,
 # and interacting with the player via the command line
-class HumanPlayer
+class HumanPlayer < Player
   include HumanPlayerUI
 
-  def initialize(color, player_num = 0, name = nil)
-    @color = color
+  def initialize(color, player_num, name = nil)
+    super(color)
     @player_num = player_num # greet differently if two human players VS human against computer
     @name = name || ask_player_name
   end
 
-  attr_reader :name, :color
-
   def make_move(board) # rubocop:disable Metrics/MethodLength
-    announce_turn
+    super()
     board.display
 
     loop do
@@ -30,26 +30,13 @@ class HumanPlayer
 
       result = board.move_piece(piece, indices_new_position)
       if result[:move_valid]
-        announce_move(result, piece, alphanum_original_position, alphanum_new_position)
+        announce_move(result, piece, alphanum_original_position, alphanum_new_position, board)
         promote_pawn(board, piece) if result[:promote_pawn]
         return
       else
         announce_failed_move(piece, alphanum_new_position)
       end
     end
-  end
-
-  def to_h
-    {
-      type: self.class.name,
-      color: @color,
-      player_num: @player_num,
-      name: @name
-    }
-  end
-
-  def self.from_h(player_data)
-    new(player_data[:color], player_data[:player_num], player_data[:name])
   end
 
   private
@@ -75,8 +62,7 @@ class HumanPlayer
     return unless ask_to_promote_pawn
 
     promotion_piece_name = ask_promotion_piece_name
-    board.promote_pawn(piece, promotion_piece_name)
 
-    announce_pawn_promotion(piece, promotion_piece_name)
+    super(board, piece, promotion_piece_name)
   end
 end

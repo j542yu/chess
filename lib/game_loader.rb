@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 using Rainbow
+require_relative 'human_player'
+require_relative 'computer_player'
 
 # This class handles loading saved games and is
 # used in main.rb
@@ -38,7 +40,15 @@ class GameLoader
   end
 
   def self.load_new_game
-    GameUI.announce_new_game
-    Game.new
+    player_types = GameUI.ask_player_types
+
+    case player_types
+    when :human_human
+      GameUI.announce_new_game('human', 'human')
+      Game.new([HumanPlayer.new(:white, 1), HumanPlayer.new(:black, 2)])
+    when :human_computer
+      GameUI.announce_new_game('human', 'computer')
+      Game.new([HumanPlayer.new(:white, 0), ComputerPlayer.new(:black)])
+    end
   end
 end

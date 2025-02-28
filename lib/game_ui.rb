@@ -18,8 +18,28 @@ class GameUI
     HEREDOC
   end
 
-  def self.announce_new_game
-    puts "\nA new game will be started!"
+  def self.ask_player_types # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
+    puts "\n\nChoose game mode:".blue
+    puts "\t1. Human against Human".blue
+    puts "\t2. Human against Computer".blue
+    print '=> '.blue
+
+    loop do
+      case gets.chomp.to_i
+      when 1
+        return :human_human
+      when 2
+        return :human_computer
+      else
+        puts ''
+        puts "Invalid choice. Please enter '1' for two human players or '2' for human against computer".red.bg(:silver)
+        print '=> '.blue
+      end
+    end
+  end
+
+  def self.announce_new_game(player_one_class, player_two_class)
+    puts "\nA new #{player_one_class} VS #{player_two_class} game will be started!"
   end
 
   def self.announce_checkmate(name)

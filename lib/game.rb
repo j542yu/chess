@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'human_player'
 require_relative 'board'
 require_relative 'modules/game_serializable'
 
@@ -10,8 +9,7 @@ require_relative 'modules/game_serializable'
 # special move logic (ex. en passant, castling)
 class Game
   include GameSerializable
-  def initialize(players = [HumanPlayer.new(:white, 1), HumanPlayer.new(:black, 2)],
-                 current_player_id = 0, board = Board.new)
+  def initialize(players, current_player_id = 0, board = Board.new)
     @players = players
     @current_player_id = current_player_id
     @board = board
