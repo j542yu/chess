@@ -72,10 +72,13 @@ module CheckValidation
   def can_block_path?(king, threatening_piece, ally_piece)
     return false if threatening_piece.instance_of?(Knight) || ally_piece.instance_of?(King)
 
-    ally_piece.next_moves.any? { |move| path(threatening_piece.position, king.position).include?(move) }
+    ally_piece.next_moves.any? do |move|
+      path(threatening_piece.position, king.position).include?(move) &&
+        path_clear?(ally_piece, ally_piece.position, move)
+    end
   end
 
-  def can_capture_threat?(threatening_piece, ally_piece, color)
+  def can_capture_threat?(threatening_piece, ally_piece, color) # rubocop:disable Metrics/AbcSize
     if ally_piece.instance_of?(Pawn)
       pawn_diagonal_capture?(ally_piece, ally_piece.position, threatening_piece.position)
     elsif ally_piece.instance_of?(King)
@@ -83,7 +86,8 @@ module CheckValidation
         (move == threatening_piece.position) && !in_check?(color, threatening_piece.position)
       end
     else
-      ally_piece.next_moves.include?(threatening_piece.position)
+      ally_piece.next_moves.include?(threatening_piece.position) &&
+        path_clear?(ally_piece, ally_piece.position, threatening_piece.position)
     end
   end
 

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rainbow/refinement'
-require_relative 'game/game'
-require_relative 'game/game_loader'
-require_relative 'game/game_ui'
+require_relative 'lib/game/game'
+require_relative 'lib/game/game_loader'
+require_relative 'lib/game/game_ui'
 
 GameUI.announce_intro
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative '../lib/board'
-require 'rainbow'
+require_relative '../lib/board/board'
+require 'rainbow/refinement'
 
 describe Board do
   describe '#initialize' do
@@ -403,6 +403,59 @@ describe Board do
 
         it 'returns true' do
           expect(board_checkmate.checkmate?(ally_color)).to eq(true)
+        end
+      end
+
+      context "by Fool's Mate" do
+        subject(:board_fools_mate) { Board.new }
+        before do
+          ally_pawn_one = board_fools_mate[5][1]
+          board_fools_mate.move_piece(ally_pawn_one, [5, 2])
+
+          opponent_pawn = board_fools_mate[4][6]
+          board_fools_mate.move_piece(opponent_pawn, [4, 4])
+
+          ally_pawn_two = board_fools_mate[6][1]
+          board_fools_mate.move_piece(ally_pawn_two, [6, 3])
+
+          threatening_queen = board_fools_mate[3][7]
+          board_fools_mate.move_piece(threatening_queen, [7, 3])
+        end
+
+        it 'returns true' do
+          expect(board_fools_mate.checkmate?(ally_color)).to eq(true)
+        end
+      end
+
+      context "by Scholar's Mate" do
+        subject(:board_scholars_mate) { Board.new }
+
+        before do
+          opponent_pawn = board_scholars_mate[4][6]
+          board_scholars_mate.move_piece(opponent_pawn, [4, 4])
+
+          ally_pawn = board_scholars_mate[4][1]
+          board_scholars_mate.move_piece(ally_pawn, [4, 3])
+
+          threatening_bishop = board_scholars_mate[5][7]
+          board_scholars_mate.move_piece(threatening_bishop, [2, 4])
+
+          ally_knight_one = board_scholars_mate[1][0]
+          board_scholars_mate.move_piece(ally_knight_one, [2, 2])
+
+          threatening_queen = board_scholars_mate[3][7]
+          board_scholars_mate.move_piece(threatening_queen, [7, 3])
+
+          ally_knight_two = board_scholars_mate[6][0]
+          board_scholars_mate.move_piece(ally_knight_two, [5, 2])
+
+          board_scholars_mate.move_piece(threatening_queen, [5, 1])
+
+          board_scholars_mate.display
+        end
+
+        it 'returns true' do
+          expect(board_scholars_mate.checkmate?(ally_color)).to eq(true)
         end
       end
     end

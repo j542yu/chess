@@ -63,7 +63,6 @@ module HumanPlayerUI
   end
 
   def announce_failed_move(result, piece, alphanum_new_position)
-    p result
     puts ''
     error_message = "#{piece.class.name} cannot move to #{alphanum_new_position}. "
     error_message += if result[:endangers_king]

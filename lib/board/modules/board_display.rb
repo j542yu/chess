@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# require 'rainbow/refinement' # required for tests to work
 using Rainbow
 
 # This modules handles input and output of Board instances,
