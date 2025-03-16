@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-require_relative '../lib/board/board'
 require 'rainbow/refinement'
+using Rainbow
+require_relative '../lib/board/board'
 
 describe Board do
   describe '#initialize' do
@@ -294,7 +295,7 @@ describe Board do
           old_position = pinned_queen.position
           new_position = [3, 6]
 
-          result = { move_valid: false, endangers_king: true, capture: false, en_passant: false, castling: false, promote_pawn: false }
+          result = { move_valid: true, endangers_king: true, capture: false, en_passant: false, castling: false, promote_pawn: false }
           expect(board_pinned.move_piece(pinned_queen, new_position)).to eq(result)
           expect(board_pinned[new_position[0]][new_position[1]]).to be_nil
           expect(board_pinned[old_position[0]][old_position[1]]).to eq(pinned_queen)
@@ -325,7 +326,7 @@ describe Board do
           old_position = pinned_queen.position
           new_position = threatening_bishop.position
 
-          result = { move_valid: false, endangers_king: true, capture: false, en_passant: false, castling: false, promote_pawn: false }
+          result = { move_valid: true, endangers_king: true, capture: false, en_passant: false, castling: false, promote_pawn: false }
           expect(board_pinned.move_piece(pinned_queen, new_position)).to eq(result)
           expect(board_pinned[new_position[0]][new_position[1]]).to eq(threatening_bishop)
           expect(board_pinned[old_position[0]][old_position[1]]).to eq(pinned_queen)
@@ -450,8 +451,6 @@ describe Board do
           board_scholars_mate.move_piece(ally_knight_two, [5, 2])
 
           board_scholars_mate.move_piece(threatening_queen, [5, 1])
-
-          board_scholars_mate.display
         end
 
         it 'returns true' do

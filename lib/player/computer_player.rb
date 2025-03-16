@@ -29,7 +29,7 @@ class ComputerPlayer < Player
       old_position = piece.position
       possible_move = possible_moves(piece).sample
       result = board.move_piece(piece, possible_move)
-      next unless result[:move_valid]
+      next unless result[:move_valid] && !result[:endangers_king]
 
       promote_pawn(board, piece) if result[:promote_pawn]
 

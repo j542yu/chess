@@ -29,7 +29,7 @@ class HumanPlayer < Player
       alphanum_new_position, indices_new_position = ask_for_position(board, :new)
 
       result = board.move_piece(piece, indices_new_position)
-      if result[:move_valid]
+      if result[:move_valid] && !result[:endangers_king]
         announce_move(result, piece, alphanum_original_position, alphanum_new_position, board)
         promote_pawn(board, piece) if result[:promote_pawn]
         return

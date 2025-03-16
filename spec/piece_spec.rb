@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../lib/piece'
+require_relative '../lib/board/piece'
 
 describe Piece do
   let(:random_color) { :white }

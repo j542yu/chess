@@ -19,6 +19,10 @@ module MovePieceHelpers
   private
 
   def move_generic_piece(moving_piece, old_position, new_position, result)
+    result[:endangers_king] = move_endangers_king?(moving_piece, old_position, new_position)
+    
+    return result if result[:endangers_king]
+
     capture_result = remove_captured_piece(moving_piece, self[*new_position])
     result.merge!(capture_result)
 
@@ -41,12 +45,30 @@ module MovePieceHelpers
     result
   end
 
-  def commit_move(moving_piece, old_position, new_position)
+  def move_endangers_king?(moving_piece, old_position, new_position)
+    previous_piece = self[*new_position]
+    attempt_move(moving_piece, old_position, new_position)
+    result = in_check?(moving_piece.color)
+    reverse_move(moving_piece, previous_piece, old_position, new_position)
+
+    result
+  end
+
+  def attempt_move(moving_piece, old_position, new_position)
     self[*old_position] = nil
     self[*new_position] = moving_piece
     moving_piece.update_position(new_position)
+  end
 
+  def commit_move(moving_piece, old_position, new_position)
+    attempt_move(moving_piece, old_position, new_position)
     @move_history << [moving_piece, old_position, new_position]
+  end
+
+  def reverse_move(moving_piece, previous_piece, old_position, new_position)
+    self[*new_position] = previous_piece
+    self[*old_position] = moving_piece
+    moving_piece.update_position(old_position)
   end
 
   def remove_captured_piece(capturing_piece, captured_piece)

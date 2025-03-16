@@ -25,11 +25,11 @@ module CheckValidation
       ally_positions_in_path = (path & ally_pieces.map(&:position))
 
       if ally_positions_in_path.size == 1 && piece.position == ally_positions_in_path[0]
-        return { pinned: true, line_of_attack: path }
+        return true
       end
     end
 
-    { pinned: false, line_of_attack: nil }
+    false
   end
 
   def possible_pinning_pieces(king_position, color)
@@ -65,7 +65,7 @@ module CheckValidation
       can_block_or_capture = can_block_path?(king, threatening_piece, ally_piece) ||
                              can_capture_threat?(threatening_piece, ally_piece, color)
 
-      can_block_or_capture && !validate_pinned_piece(ally_piece, king, color, possible_pinning_pieces)[:pinned]
+      can_block_or_capture && !validate_pinned_piece(ally_piece, king, color, possible_pinning_pieces)
     end
   end
 
