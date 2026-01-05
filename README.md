@@ -2,19 +2,9 @@
 
 ## Table of Contents
 
-1. [Overview](#overview)
-2. [Running the Game](#running-the-game)
-3. [Game Features](#game-features)
-4. [Gameplay Showcase](#gameplay-showcase)
-
-
-## Overview
-
-Welcome to Chess! This is a command-line implementation of this classic game written in Ruby. It allows two players — human or AI — to play against each other, with support for saving game progress.
-
-This game follows the standard rules of chess, which can be found here [here](https://www.instructables.com/Playing-Chess/). The ultimate objective is to checkmate your opponent’s king by putting it in a position where it is under attack and cannot escape.
-
-> Note: This project was created as part of *The Odin Project*'s Ruby course in their Ruby on Rails path. The goal was to practice writing clean and modular code for a large project with no instruction given, while using Rspec to test crucial capabilities. 
+1. [Running the Game](#running-the-game)
+2. [Game Features](#game-features)
+3. [Gameplay Showcase](#gameplay-showcase)
 
 ## Running the Game
 
